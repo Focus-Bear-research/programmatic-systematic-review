@@ -4,8 +4,9 @@ Advisory single-rater (Claude Sonnet via Bedrock) pass over each retrieved full 
 judging the review's inclusion criteria. Recall-safe: a paper is only marked exclude on a
 CLEAR failure; anything genuinely unclear -> review (for human confirmation).
 
-Inclusion (must pass ALL):
-  1. Population — children/adolescents (<18) with ADHD and/or autism (parent-mediated counts).
+Inclusion (must pass ALL) — same protocol as the adults AuDHD review, age gate flipped to <18.
+The "ADHD or autism" net is only for full-text RETRIEVAL; INCLUSION requires co-occurring AuDHD.
+  1. Population — children/adolescents (<18) with CO-OCCURRING ADHD AND autism (same participants).
   2. Intervention — digital/technology-based.
   3. Target outcome — >=1 of attention / executive_function / emotional_regulation.
   4. Design — controlled (RCT or non-randomised controlled).
@@ -33,19 +34,65 @@ CHAPTERS = "search-results-from-database/children/book_chapter_extractions.csv"
 SNOW, DB = "full_text_snowball", "full_text"
 OUT = "search-results-from-database/children/fulltext_screen_firstpass.csv"
 
-EXCERPT_LIMIT = 12000
+EXCERPT_LIMIT = 16000
+HEAD_CHARS = 5000
+COOC_BUDGET = 5000  # reserved slice of the excerpt for AuDHD co-occurrence evidence
 KEY_TERMS = re.compile(r"particip|random|control group|control condition|sample|recruit|"
                        r"\bn\s*=|attention|executive|working memory|inhibit|emotion|regulat|"
                        r"diagnos|years old|aged|adolesc", re.I)
 
-SYS = """You screen the FULL TEXT of a study for a systematic review of DIGITAL interventions \
-for CHILDREN/ADOLESCENTS (under 18) with ADHD and/or autism. Judge each criterion from the text. \
-Be RECALL-SAFE: if a criterion is genuinely unclear, use "unclear" — do not guess "fail".
+# The AuDHD population gate hinges on co-occurrence evidence that usually lives deep in the
+# methods/sample section — past the head-plus-keyword window — so pull it explicitly.
+AUT_RE = re.compile(r"autis|asperger|\basd\b|pervasive developmental", re.I)
+ADHD_RE = re.compile(r"adhd|attention[- ]deficit|hyperkinetic", re.I)
+COOC_RE = re.compile(r"comorbid|co-?occur|co-?morbid|coexist|co-?exist|dual diagnos|\bboth\b|"
+                     r"in addition to|as well as|concurrent", re.I)
+SENT_RE = re.compile(r"[^.\n]*\.")
 
-1. population: "pass" if participants are children/adolescents (majority <18, or a clearly \
-reported <18 subgroup) with ADHD and/or autism (diagnosed or strongly indicated). Parent-mediated \
-counts (parent/caregiver delivers to the under-18 child). "fail" if adults-only or a population \
-without ADHD/autism. "unclear" otherwise.
+
+def cooc_windows(text):
+    """Context windows around any sentence that ties autism and ADHD to the SAME participants —
+    the decisive (and often deeply-buried) evidence for the co-occurring-AuDHD population gate."""
+    wins, used, seen = [], 0, set()
+    for mo in SENT_RE.finditer(text):
+        s = mo.group(0)
+        both = AUT_RE.search(s) and ADHD_RE.search(s)
+        comorbid = COOC_RE.search(s) and (AUT_RE.search(s) or ADHD_RE.search(s))
+        if not (both or comorbid):
+            continue
+        st = max(0, mo.start() - 200)
+        win = text[st:mo.end() + 200]
+        k = win[:60]
+        if k in seen:
+            continue
+        seen.add(k)
+        wins.append(win)
+        used += len(win)
+        if used > COOC_BUDGET:
+            break
+    return wins
+
+SYS = """You screen the FULL TEXT of a study for a systematic review of DIGITAL interventions \
+for CHILDREN/ADOLESCENTS (under 18) with CO-OCCURRING ADHD AND autism (AuDHD). Judge each \
+criterion from the text. Be RECALL-SAFE: if a criterion is genuinely unclear, use "unclear" — \
+do not guess "fail".
+
+1. population: this review includes ONLY co-occurring AuDHD — children who have BOTH an ADHD \
+diagnosis AND an autism diagnosis in the SAME person. Be RECALL-SAFE here above all: your job is \
+NOT to exclude a paper just because its headline says only "ADHD" or only "autism". Read the \
+sample/eligibility/demographics for co-occurrence. Judge:
+   - "pass" if children/adolescents (majority <18, or a clearly reported <18 subgroup) and the \
+analysed sample — OR a clearly reported subgroup of it — has BOTH ADHD AND autism together \
+(e.g. "n=16 diagnosed with both ASD and ADHD", or a demographics/comorbidity table showing \
+participants carry both). Parent-mediated counts (parent/caregiver delivers to the under-18 child).
+   - "unclear" (do NOT fail) if the sample PLAUSIBLY contains co-occurring AuDHD participants but \
+it is not cleanly broken out: a mixed neurodevelopmental sample, an autism sample that reports some \
+comorbid ADHD (or vice-versa), or a study that does not EXCLUDE the second condition. When in doubt \
+between pass and fail, choose "unclear" so a human checks the full text.
+   - "fail" ONLY when co-occurring AuDHD is clearly impossible: adults-only; a non-ADHD/non-autism \
+population; or a pure single-diagnosis sample that plainly excludes or contains none of the other \
+condition (the other condition appears ONLY as background/prevalence/citation, never in the actual \
+participants).
 2. intervention: "pass" if a digital/technology-based intervention (mobile/web app, software, video \
 game, VR/AR, neuro/biofeedback, computerised cognitive training, robot, wearable, e-learning, video \
 modelling, AAC device, telehealth, or digitally-DELIVERED CBT/mindfulness/parent-training). "fail" if \
@@ -82,15 +129,20 @@ def title_slug(t):
 
 
 def excerpt(text):
-    head = text[:5000]
+    head = text[:HEAD_CHARS]
+    cooc = cooc_windows(text)
+    cooc_block = ("\n\n[CO-OCCURRENCE / SAMPLE EVIDENCE — does the SAME child have both autism "
+                  "and ADHD?]\n" + "\n...\n".join(cooc)) if cooc else ""
+    remaining = EXCERPT_LIMIT - len(head) - len(cooc_block)
     wins, used = [], 0
-    for mo in KEY_TERMS.finditer(text[5000:]):
-        s = 5000 + mo.start() - 300
+    for mo in KEY_TERMS.finditer(text[HEAD_CHARS:]):
+        s = HEAD_CHARS + mo.start() - 300
         wins.append(text[max(0, s):s + 600])
         used += 600
-        if used > EXCERPT_LIMIT - 5000:
+        if used > remaining - 600:
             break
-    return (head + "\n...\n" + "\n...\n".join(wins))[:EXCERPT_LIMIT]
+    other_block = ("\n\n[OTHER CONTEXT]\n" + "\n...\n".join(wins)) if wins else ""
+    return (head + cooc_block + other_block)[:EXCERPT_LIMIT]
 
 
 def verdict(r):
