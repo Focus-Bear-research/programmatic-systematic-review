@@ -82,9 +82,9 @@ def find_end(pages, start):
 
 
 def main():
-    root = Path(sys.argv[1]) if len(sys.argv) > 1 else None
-    if not root or not root.is_dir():
-        sys.exit(f"pdf root folder not found: {root}")
+    roots = [Path(a) for a in sys.argv[1:]]
+    if not roots or not all(r.is_dir() for r in roots):
+        sys.exit(f"pdf root folder(s) not found: {[str(r) for r in roots] or None}")
 
     m = pd.read_csv(MASTER, keep_default_na=False)
     long_titles = [(norm(t), i) for i, t in zip(m.index, m["Title"]) if len(norm(t)) >= 40]
@@ -94,8 +94,9 @@ def main():
     matches = pd.read_csv(MATCHES, keep_default_na=False)
     books = matches[(matches["verdict"] == "no_match") & (matches["chars"].astype(int) < 1500)]
     by_name = {}
-    for p in root.rglob("*.pdf"):
-        by_name.setdefault(p.name, []).append(p)
+    for r in roots:
+        for p in r.rglob("*.pdf"):
+            by_name.setdefault(p.name, []).append(p)
 
     rows = []
     for _, b in books.iterrows():

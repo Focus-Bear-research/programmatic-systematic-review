@@ -28,6 +28,8 @@ from rapidfuzz import fuzz, process
 
 MASTER = "search-results-from-database/children/fulltext_review_master.csv"
 OUT = "search-results-from-database/children/manual_fulltext_matches.csv"
+CONFIRMED = "search-results-from-database/children/manual_matches_confirmed.csv"
+NEEDS_REVIEW = "search-results-from-database/children/manual_matches_needs_review.csv"
 
 DOI_RE = re.compile(r"10\.\d{4,9}/[-._;()/:A-Za-z0-9]+", re.I)
 TITLE_MATCH_THRESHOLD = 92   # partial_ratio; at/above -> trusted match
@@ -132,9 +134,9 @@ def extract_doi(text):
 
 
 def main():
-    root = Path(sys.argv[1]) if len(sys.argv) > 1 else None
-    if not root or not root.is_dir():
-        sys.exit(f"pdf root folder not found: {root}")
+    roots = [Path(a) for a in sys.argv[1:]]
+    if not roots or not all(r.is_dir() for r in roots):
+        sys.exit(f"pdf root folder(s) not found: {[str(r) for r in roots] or None}")
 
     m = pd.read_csv(MASTER)
     m["_doi"] = m["DOI"].map(norm_doi)
@@ -158,8 +160,8 @@ def main():
             ft_titles.append(t)
             ft_idx.append(i)
 
-    pdfs = sorted(root.rglob("*.pdf"), key=lambda p: str(p))
-    print(f"{len(pdfs)} PDFs under {root.name}\n")
+    pdfs = sorted((p for r in roots for p in r.rglob("*.pdf")), key=lambda p: str(p))
+    print(f"{len(pdfs)} PDFs under {len(roots)} folder(s)\n")
 
     rows = []
     for i, pdf in enumerate(pdfs, 1):
@@ -249,14 +251,20 @@ def main():
              "match_doi", "match_title", "pdf_title", "pdf_doi", "chars"]]
     df.to_csv(OUT, index=False)
 
+    # Split files the downstream steps consume: confirmed (verdict==matched) feeds
+    # ingest-children-pdfs.py; needs_review is for manual eyeballing.
+    split_cols = ["pdf", "folder", "method", "score", "match_doi", "match_title", "ft_status"]
+    matched = df[df["verdict"] == "matched"]
+    matched[split_cols].to_csv(CONFIRMED, index=False)
+    df[df["verdict"] == "review"][split_cols].to_csv(NEEDS_REVIEW, index=False)
+
     print(f"\n=== {len(df)} PDFs ===")
     print(df["verdict"].value_counts().to_string())
-    matched = df[df["verdict"] == "matched"]
     print(f"\nMatched to a candidate: {len(matched)}")
     print("  of which ft_status:")
     print("   " + matched["ft_status"].value_counts().to_string().replace("\n", "\n   "))
     print(f"\nUnique candidates covered: {matched['match_doi'].replace('', pd.NA).nunique()}")
-    print(f"Wrote {OUT}")
+    print(f"Wrote {OUT}, {CONFIRMED}, {NEEDS_REVIEW}")
 
 
 if __name__ == "__main__":

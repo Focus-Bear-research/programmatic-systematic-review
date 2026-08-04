@@ -57,9 +57,9 @@ def pdf_text(path):
 
 
 def main():
-    root = Path(sys.argv[1]) if len(sys.argv) > 1 else None
-    if not root or not root.is_dir():
-        sys.exit(f"pdf root folder not found: {root}")
+    roots = [Path(a) for a in sys.argv[1:]]
+    if not roots or not all(r.is_dir() for r in roots):
+        sys.exit(f"pdf root folder(s) not found: {[str(r) for r in roots] or None}")
 
     os.makedirs(DEST_PDF, exist_ok=True)
     os.makedirs(DEST_TXT, exist_ok=True)
@@ -74,8 +74,9 @@ def main():
 
     # filename -> full path (folder disambiguates same-numbered files if any)
     by_name = {}
-    for p in root.rglob("*.pdf"):
-        by_name.setdefault(p.name, []).append(p)
+    for r in roots:
+        for p in r.rglob("*.pdf"):
+            by_name.setdefault(p.name, []).append(p)
 
     def resolve_target(r):
         """(txt_path, pdf_path, kind) for a confirmed match, by DOI else PMID else slug."""

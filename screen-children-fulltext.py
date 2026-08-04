@@ -34,6 +34,10 @@ CHAPTERS = "search-results-from-database/children/book_chapter_extractions.csv"
 SNOW, DB = "full_text_snowball", "full_text"
 OUT = "search-results-from-database/children/fulltext_screen_firstpass.csv"
 
+# SCREEN_ALL=1 screens every master candidate with full text on disk (whole corpus),
+# not just the manual full-text delivery.
+SCREEN_ALL = os.getenv("SCREEN_ALL", "0") not in ("0", "", "false", "False")
+
 EXCERPT_LIMIT = 16000
 HEAD_CHARS = 5000
 COOC_BUDGET = 5000  # reserved slice of the excerpt for AuDHD co-occurrence evidence
@@ -182,8 +186,13 @@ def main():
     pmid_by_title = {str(t).strip().lower(): clean_pmid(p) for t, p in zip(m["Title"], m["PMID"])}
     title_by_doi = {normalize_doi(d): t for d, t in zip(m["DOI"], m["Title"]) if normalize_doi(d)}
 
-    # assemble the papers we just retrieved: confirmed single-paper matches + extracted chapters
-    targets = {}  # doi -> title
+    # Papers to screen. Default: only the manual full-text delivery (confirmed single-paper
+    # matches + extracted book chapters). SCREEN_ALL=1: every candidate in the master, so the
+    # OA-retrieved corpus is screened too — resolve() drops those without text on disk.
+    targets = {}  # doi (or title fallback) -> title
+    if SCREEN_ALL:
+        for _, r in m.iterrows():
+            targets[normalize_doi(r["DOI"]) or r["Title"]] = r["Title"]
     conf = pd.read_csv(CONFIRMED, keep_default_na=False)
     for _, r in conf.iterrows():
         targets[normalize_doi(r["match_doi"]) or r["match_title"]] = r["match_title"]
