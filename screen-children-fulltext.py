@@ -186,20 +186,25 @@ def main():
     pmid_by_title = {str(t).strip().lower(): clean_pmid(p) for t, p in zip(m["Title"], m["PMID"])}
     title_by_doi = {normalize_doi(d): t for d, t in zip(m["DOI"], m["Title"]) if normalize_doi(d)}
 
-    # Papers to screen. Default: only the manual full-text delivery (confirmed single-paper
-    # matches + extracted book chapters). SCREEN_ALL=1: every candidate in the master, so the
-    # OA-retrieved corpus is screened too — resolve() drops those without text on disk.
+    # Papers to screen. SCREEN_ALL=1: every master candidate (whole corpus), EXCLUDING
+    # non-peer-reviewed grey literature (conference proceedings / book chapters) per protocol
+    # — pub_peer_reviewed=="no"; "unknown" is kept (recall-safe). resolve() drops those without
+    # text on disk. Default (not SCREEN_ALL): only the manual full-text delivery.
     targets = {}  # doi (or title fallback) -> title
     if SCREEN_ALL:
+        pr_col = "pub_peer_reviewed" in m.columns
         for _, r in m.iterrows():
+            if pr_col and str(r.get("pub_peer_reviewed", "")).strip().lower() == "no":
+                continue  # conference paper / book chapter — not peer-reviewed
             targets[normalize_doi(r["DOI"]) or r["Title"]] = r["Title"]
-    conf = pd.read_csv(CONFIRMED, keep_default_na=False)
-    for _, r in conf.iterrows():
-        targets[normalize_doi(r["match_doi"]) or r["match_title"]] = r["match_title"]
-    if os.path.exists(CHAPTERS):
-        ch = pd.read_csv(CHAPTERS, keep_default_na=False)
-        for _, r in ch[ch["status"] == "EXTRACTED"].iterrows():
-            targets[normalize_doi(r["doi"]) or r["chapter"]] = r["chapter"]
+    else:
+        conf = pd.read_csv(CONFIRMED, keep_default_na=False)
+        for _, r in conf.iterrows():
+            targets[normalize_doi(r["match_doi"]) or r["match_title"]] = r["match_title"]
+        if os.path.exists(CHAPTERS):
+            ch = pd.read_csv(CHAPTERS, keep_default_na=False)
+            for _, r in ch[ch["status"] == "EXTRACTED"].iterrows():
+                targets[normalize_doi(r["doi"]) or r["chapter"]] = r["chapter"]
 
     def resolve(doi, title):
         key = fkey(doi)
