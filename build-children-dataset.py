@@ -33,6 +33,13 @@ from steps.schema import SCREEN_FIELDS
 SOURCE = "search-results-from-database/all_papers.csv"
 REQUIRE_AGE = "has_under_18"
 
+# study_type values that are NOT empirical primary research. When BOTH raters assign one
+# of these, the paper is non-empirical and excluded — the is_empirical screen field is often
+# blank on batch-classified rows, so gate on study_type too. Empirical-but-weak designs
+# (case_study, qualitative_only_study) are kept and fail later on design/N, not here.
+NONEMPIRICAL_STUDY_TYPES = {"review", "review_or_nonempirical", "commentary", "proposal",
+                            "protocol", "editorial", "erratum"}
+
 
 def nz(v) -> str:
     return str(v).strip().lower()
@@ -42,12 +49,17 @@ def both_no(a: dict, b: dict, field: str) -> bool:
     return nz(a.get(field)) == "no" and nz(b.get(field)) == "no"
 
 
+def both_nonempirical(a: dict, b: dict) -> bool:
+    return (nz(a.get("study_type")) in NONEMPIRICAL_STUDY_TYPES
+            and nz(b.get("study_type")) in NONEMPIRICAL_STUDY_TYPES)
+
+
 def child_gate(a: dict, b: dict) -> tuple[str, str]:
     """Recall-safe screen for the CHILD review. Unlike steps.screen._gate this
     does NOT exclude parent-/caregiver-mediated interventions — for an under-18
     review, parent-implemented digital programmes are in scope (confirmed at
     full text). Fails only on both-raters-no for is_empirical or has_under_18."""
-    if both_no(a, b, "is_empirical"):
+    if both_no(a, b, "is_empirical") or both_nonempirical(a, b):
         return "N", "non_empirical"
     if both_no(a, b, REQUIRE_AGE):
         return "N", "wrong_age"
@@ -68,7 +80,9 @@ def main() -> None:
     print(f"{SOURCE}: {n_all} rows -> {len(df)} non-duplicate")
 
     def rater(row, pref: str) -> dict:
-        return {f: row.get(f"{pref}_{f}", "") for f in SCREEN_FIELDS}
+        d = {f: row.get(f"{pref}_{f}", "") for f in SCREEN_FIELDS}
+        d["study_type"] = row.get(f"{pref}_study_type", "")  # detail field, for the non-empirical gate
+        return d
 
     # Recall-safe under-18 universe + re-derive Screen_Pass under the child gate.
     keep_rows, passes, reasons = [], [], []
