@@ -8,7 +8,8 @@ Inclusion (must pass ALL) — same protocol as the adults AuDHD review, age gate
 The "ADHD or autism" net is only for full-text RETRIEVAL; INCLUSION requires co-occurring AuDHD.
   1. Population — children/adolescents (<18) with CO-OCCURRING ADHD AND autism (same participants).
   2. Intervention — digital/technology-based.
-  3. Target outcome — >=1 of attention / executive_function / emotional_regulation.
+  3. Target outcome — any child-level clinical/behavioural/functional outcome; excluded ONLY when the
+     sole outcome is device/VR tolerance-usability or a caregiver-only outcome (e.g. parental stress).
   4. Design — controlled (RCT or non-randomised controlled).
   5. Sample size — >=20 who received the intervention (unstated N is kept, not excluded).
 
@@ -101,10 +102,14 @@ participants).
 game, VR/AR, neuro/biofeedback, computerised cognitive training, robot, wearable, e-learning, video \
 modelling, AAC device, telehealth, or digitally-DELIVERED CBT/mindfulness/parent-training). "fail" if \
 non-digital (face-to-face only, medication, physical-only). "unclear" otherwise.
-3. target_outcome: array — which of ["attention","executive_function","emotional_regulation"] the study \
-MEASURES as an outcome. Executive function includes working memory, inhibition, cognitive flexibility, \
-planning. Return [] if it measures none of these (e.g. only social skills, communication, academic, \
-motor, adaptive/daily-living).
+3. target_outcome: array of the CHILD-level clinical / behavioural / functional outcomes the study \
+MEASURES, from ["attention","executive_function","emotional_regulation","emotion_recognition",\
+"social_communication","language","anxiety_mood","behaviour","adaptive_daily_living","quality_of_life",\
+"self_determination","academic","motor"]. Executive function includes working memory, inhibition, \
+cognitive flexibility, planning. This review accepts ANY child-level clinical/behavioural/functional \
+outcome. Return [] ONLY when the study's SOLE outcomes are (a) tolerance / usability / feasibility / \
+sensory-comfort of the technology or VR/AR device itself, or (b) caregiver/parent-only outcomes (e.g. \
+parental/maternal stress) with no child outcome measured.
 4. design: one of ["rct","non_randomized_controlled","uncontrolled_prepost","single_case",\
 "qualitative","review_or_nonempirical","other"]. Controlled = has a comparison/control group.
 5. n_received: integer = participants who actually RECEIVED the intervention (analysed intervention-arm \
