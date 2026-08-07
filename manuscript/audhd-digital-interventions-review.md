@@ -118,7 +118,7 @@ A natural objection to any empty review is that conjunctive criteria manufacture
 | Relax adults → any age (keep AuDHD + on-target + controlled + N≥20) | 0 |
 
 ### 3.3 Secondary scoping characterisation
-Of 14,253 records, 6,906 concerned autistic and/or ADHD populations (autistic 4,650; ADHD 2,081; AuDHD 175). Of these, 1,106 empirically evaluated a digital intervention (autistic 770; ADHD 321; **AuDHD 15 — 1.4%**); 847 studied children/adolescents and 323 adults. Among AuDHD-labelled digital studies only 8 involved adults, and full-text scrutiny dissolved nearly all into separate diagnostic groups, comorbidity asides, or excluded modalities (a telecoaching cluster; one VR study).
+Of the 14,253 records, 1,106 (de-duplicated) empirically evaluated a digital intervention in an autism and/or ADHD population (autistic 770; ADHD 321; **AuDHD 15 — 1.4%**); 847 studied children/adolescents and 323 adults. Among AuDHD-labelled digital studies only 8 involved adults, and full-text scrutiny dissolved nearly all into separate diagnostic groups, comorbidity asides, or excluded modalities (a telecoaching cluster; one VR study).
 
 The most common modalities were VR/AR (281), mobile apps (266), robotics (144), and serious games (107). Among the 323 ND-adult digital studies, design was determinable for 287 (89%): RCT 79, non-randomised controlled 34, no control group 174; 36 (11%) were not determinable from the abstract. **Restricted to determinable cases, ~39% had a control group (113/287)** (~35% of all adult studies, 113/323).
 
