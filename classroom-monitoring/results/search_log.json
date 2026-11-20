@@ -1,0 +1,41 @@
+{
+  "search_date": "2026-11-21",
+  "unique_papers": 3114,
+  "queries": {
+    "product_names": {
+      "query": "(goguardian | linewize | classwize | securly | lanschool | dyknow | blocksi | hapara | veyon | italc | mythware | \"netsupport school\" | \"netsupport manager\" | \"lightspeed classroom\" | \"lightspeed systems\" | \"apple classroom\" | \"netop vision\" | \"netop school\" | \"faronics insight\" | \"smart sync\" | \"family zone\" | \"qustodio\" | \"senso.cloud\" | \"smoothwall\" | \"bark for schools\" | \"chrome education upgrade\")",
+      "total_matches": 1429,
+      "retrieved": 1429
+    },
+    "ambiguous_product_names": {
+      "query": "(impero | gaggle | \"radix viso\" | \"classroom.cloud\" | \"class policy\") + (school* | classroom* | student* | pupil* | teacher*)",
+      "total_matches": 173,
+      "retrieved": 173
+    },
+    "software_category": {
+      "query": "(\"classroom management software\" | \"classroom management system\" | \"classroom monitoring software\" | \"classroom monitoring system\" | \"screen monitoring software\" | \"screen monitoring\" | \"student monitoring software\" | \"student activity monitoring\" | \"computer monitoring software\" | \"device monitoring software\" | \"remote monitoring software\" | \"lab management software\" | \"monitoring software\" | \"surveillance software\") + (school* | classroom* | student* | pupil* | teacher*)",
+      "total_matches": 619,
+      "retrieved": 619
+    },
+    "surveillance": {
+      "query": "(\"student surveillance\" | \"school surveillance\" | \"classroom surveillance\" | \"digital surveillance\" | \"dataveillance\" | \"online monitoring\" | \"student activity monitoring\" | \"edtech surveillance\") + (school* | classroom* | student* | pupil* | teacher*) + (laptop* | chromebook* | tablet* | ipad* | computer* | \"1:1\" | \"one-to-one\" | device*)",
+      "total_matches": 90,
+      "retrieved": 90
+    },
+    "off_task_restriction": {
+      "query": "(laptop* | chromebook* | tablet* | ipad* | computer* | \"1:1\" | \"one-to-one\" | device*) + (classroom* | lecture* | lesson*) + (\"off-task\" | \"off task\" | distract* | \"media multitasking\" | multitasking | \"cyberslacking\" | \"cyberloafing\" | \"non-academic use\") + (monitor* | block* | restrict* | filter* | surveil* | lock* | \"self-control\" | \"self-regulation\")",
+      "total_matches": 323,
+      "retrieved": 323
+    },
+    "blocking": {
+      "query": "(\"website blocking\" | \"website blocker\" | \"site blocker\" | \"internet blocking\" | \"web filtering\" | \"internet filtering\" | \"content filtering\" | \"internet blocker\" | \"app blocker\" | \"distraction blocking\" | \"distraction blocker\") + (school* | classroom* | student* | pupil* | teacher*)",
+      "total_matches": 329,
+      "retrieved": 329
+    },
+    "off_task_trials": {
+      "query": "(laptop* | chromebook* | tablet* | ipad* | computer* | \"1:1\" | \"one-to-one\" | device*) + (classroom* | lecture* | lesson*) + (\"off-task\" | \"off task\" | distract* | \"media multitasking\" | multitasking | \"cyberslacking\" | \"cyberloafing\" | \"non-academic use\") + (randomized | randomised | \"randomly assigned\" | RCT | experiment* | \"quasi-experimental\" | \"controlled trial\" | \"control group\")",
+      "total_matches": 276,
+      "retrieved": 276
+    }
+  }
+}
