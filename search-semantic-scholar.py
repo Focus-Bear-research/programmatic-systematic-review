@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Boolean query mirroring the other databases' searches (see
-# search-results-from-database/database-csvs/search_queries.txt), translated to
+# search-results-from-database/adults/database-csvs/search_queries.txt), translated to
 # Semantic Scholar bulk-search operators:
 #   `|` = OR, `+` = AND, `*` = prefix wildcard, `"..."` = phrase, `()` = grouping.
 SEARCH_QUERY = (
@@ -29,7 +29,7 @@ S2_BULK_URL = "https://api.semanticscholar.org/graph/v1/paper/search/bulk"
 # Output lands in the pipeline's input directory so combine.py picks it up as
 # another source (Source = "semantic_scholar").
 OUTPUT_CSV = os.path.join(
-    "search-results-from-database", "database-csvs", "semantic_scholar.csv"
+    "search-results-from-database", "adults/database-csvs", "semantic_scholar.csv"
 )
 
 

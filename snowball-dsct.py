@@ -69,7 +69,7 @@ rows += fwd
 # 4) dedupe vs existing corpus + within
 def nd(d): return normalize_doi(d) or ""
 def nt(t): import re; return re.sub(r"[^a-z0-9 ]"," ",str(t).lower()).strip()
-corpus = pd.read_csv("search-results-from-database/combined/adjudicated.csv", dtype=str).fillna("")
+corpus = pd.read_csv("search-results-from-database/adults/combined/adjudicated.csv", dtype=str).fillna("")
 seen_doi = {nd(d) for d in corpus["DOI"] if nd(d)}
 seen_title = {nt(t) for t in corpus["Title"] if str(t).strip()}
 new, dup = [], 0

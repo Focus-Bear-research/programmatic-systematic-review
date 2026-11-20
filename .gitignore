@@ -28,3 +28,15 @@ search-results-from-database/_backup_pre_snowball_screen/
 citation-scraping/*.csv
 citation-scraping/*.txt
 search-results-from-database/_archive/
+
+# adult review data: keep only the search strategy, PRISMA counts and protocol notes
+search-results-from-database/adults/*
+!search-results-from-database/adults/prisma_counts.json
+!search-results-from-database/adults/supervisor_meeting_summary.md
+!search-results-from-database/adults/database-csvs/
+search-results-from-database/adults/database-csvs/*
+!search-results-from-database/adults/database-csvs/*.txt
+
+# classroom-monitoring scan: raw and filtered search exports are regenerable
+classroom-monitoring/results/semantic_scholar.csv
+classroom-monitoring/results/candidates.csv

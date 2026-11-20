@@ -1,0 +1,43 @@
+ADULT AuDHD REVIEW — updated search queries (draft 2026-08-08)
+Addresses reviewer criticism of the original strings (database-csvs/search_queries.txt):
+EXPANDS the intervention vocabulary (the original had only app/mHealth/eHealth/web-based/
+software/digital-therapeutics) and ADDS a dedicated ACM Digital Library search. Keeps the
+adult scope (this is the adult review) and peer-reviewed-only scope (pre-registered).
+
+Reusable term blocks
+--------------------
+POP   = (ADHD OR "attention deficit*" OR autis* OR ASD OR Asperger* OR AuDHD OR neurodiverg*)
+INTV  = (app OR apps OR "mobile app*" OR "mobile application*" OR mHealth OR eHealth OR "digital health"
+         OR "digital therapeutic*" OR "digital intervention*" OR "digital tool*" OR web-based OR
+         internet-based OR online OR software OR smartphone OR wearable* OR "serious game*" OR
+         "video game*" OR videogame* OR gamif* OR "virtual reality" OR VR OR "augmented reality" OR
+         "mixed reality" OR robot* OR "social robot*" OR neurofeedback OR biofeedback OR
+         "cognitive training" OR "computerised training" OR "computerized training" OR telehealth OR
+         telecoaching OR chatbot OR "conversational agent" OR "brain-computer interface")
+ADULT = (adult* OR "young adult*" OR university OR college OR undergraduate OR workplace OR employe*)
+
+PubMed / Scopus / PsycINFO (via ProQuest) / Web of Science
+----------------------------------------------------------
+POP AND INTV AND ADULT
+(apply each database's peer-reviewed / article filters; keep 25 May 2026 as the prior anchor and
+ note the new search date. Use single-char wildcards where supported; on PubMed expand
+ "computerised/computerized" explicitly.)
+
+ACM Digital Library (ACM Guide to Computing Literature; Advanced Search)
+-----------------------------------------------------------------------
+Search each concept in [Abstract] (and optionally [Title]) and combine with AND:
+  Abstract:(ADHD OR autis* OR ASD OR Asperger* OR AuDHD OR neurodiverg* OR "attention deficit")
+  AND Abstract:("serious game*" OR "video game*" OR gamif* OR "virtual reality" OR "augmented reality"
+      OR robot* OR app OR mobile OR software OR wearable OR neurofeedback OR chatbot OR "digital")
+  AND Abstract:(adult* OR "young adult" OR university OR college OR workplace OR employe*)
+Filter Content Type = Research Article (peer-reviewed); export RIS/CSV.
+
+Notes
+-----
+- Save exports into database-csvs/ (or a dated subfolder) so build-combined-dataset.py /
+  bigscreen can ingest them; the new records will be de-duplicated against the existing corpus,
+  classified by the two-rater pipeline, and screened under the same recall-safe gate.
+- Peer-reviewed only is PRE-REGISTERED: do NOT add trial registries or grey literature.
+- Whether to keep the strict adult filter or run age-agnostic (relying on the screen's adult gate)
+  is a protocol call; the companion children search already tested the age-agnostic net and found
+  0 includable adult AuDHD studies.

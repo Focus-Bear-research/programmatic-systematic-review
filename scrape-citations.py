@@ -11,7 +11,7 @@ Two steps, each cached:
      -> citation-scraping/<backend>_scraped_citations.csv
 
 The scraped citations are also written to
-search-results-from-database/database-csvs/<backend>_citations.csv so they flow
+search-results-from-database/adults/database-csvs/<backend>_citations.csv so they flow
 straight into pipeline.py (combine -> dedupe -> classify) as another source.
 
 Backends (set CITATION_BACKEND):
@@ -59,7 +59,7 @@ SCREEN_REVIEWS = os.getenv("SCREEN_REVIEWS", "1") != "0"
 REVIEW_SCREEN_MODEL = os.getenv("REVIEW_SCREEN_MODEL", os.getenv("OPENAI_MODEL", "gpt-5.4-mini"))
 
 DATA_DIR = "citation-scraping"
-DATABASE_CSVS_DIR = os.path.join("search-results-from-database", "database-csvs")
+DATABASE_CSVS_DIR = os.path.join("search-results-from-database", "adults/database-csvs")
 
 # Per-backend output paths so the two backends never clobber each other.
 REVIEWS_CSV = os.path.join(DATA_DIR, f"{BACKEND}_systematic_reviews.csv")

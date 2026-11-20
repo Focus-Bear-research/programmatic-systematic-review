@@ -18,7 +18,7 @@ import pandas as pd
 from steps.full_text import fetch_elsevier_fulltext
 from steps.io import normalize_doi
 
-CAND = "search-results-from-database/snowball/fulltext_candidates.csv"
+CAND = "search-results-from-database/adults/snowball/fulltext_candidates.csv"
 TEXT_DIR = "full_text_snowball"
 ELS_PREFIXES = ("10.1016", "10.1006", "10.1053", "10.1067", "10.1078")
 os.makedirs(TEXT_DIR, exist_ok=True)

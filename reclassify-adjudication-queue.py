@@ -25,7 +25,7 @@ from steps.config import load_config, set_active
 from steps import llm, rules
 from steps.schema import CLASSIFICATION_PROMPT, coerce_classification, CONSENSUS_FIELDS, ALLOWED
 
-base = "search-results-from-database/combined/"
+base = "search-results-from-database/adults/combined/"
 WORK = base + "adjudicated.csv" if os.path.exists(base + "adjudicated.csv") else base + "enriched.csv"
 
 EXCLUDING_AGREED = {

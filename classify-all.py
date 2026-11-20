@@ -12,7 +12,7 @@ from steps.config import load_config, set_active
 from steps import llm
 from steps.io import normalize_doi
 
-MASTER = "search-results-from-database/fulltext_review_master.csv"
+MASTER = "search-results-from-database/adults/fulltext_review_master.csv"
 TEXT = "full_text_snowball"
 AUTISM = re.compile(r"\b(autis\w*|asd|asperger|pervasive developmental)\b", re.I)
 ADHD = re.compile(r"\b(adhd|a\.d\.h\.d|attention[- ]deficit|hyperkinetic)\b", re.I)
@@ -52,7 +52,7 @@ cfg = load_config("adults"); set_active(cfg)
 ra, rb = cfg.rater_a, cfg.rater_b
 m = pd.read_csv(MASTER, dtype=str).fillna("")
 def nd(d): return normalize_doi(d) or ""
-comb = pd.read_csv("search-results-from-database/combined/adjudicated.csv", dtype=str).fillna("")
+comb = pd.read_csv("search-results-from-database/adults/combined/adjudicated.csv", dtype=str).fillna("")
 AMAP = {nd(r["DOI"]): r.get("Abstract", "") for r in comb.to_dict("records") if nd(r["DOI"])}
 for c in ("target_raterA","target_raterB","outcome_in_scope","design_raterA","design_raterB",
           "design_verdict","design_n","audhd","adult_audhd","audhd_evidence"):

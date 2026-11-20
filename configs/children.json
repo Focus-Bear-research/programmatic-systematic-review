@@ -1,11 +1,11 @@
 {
-  "name": "Children — digital interventions for ADHD/autism (under 18)",
+  "name": "Children \u2014 digital interventions for ADHD/autism (under 18)",
   "slug": "children",
   "description": "Companion review focused on participants under 18. Carries forward under-18-flagged papers from the adults review and adds children-specific database exports.",
   "paths": {
     "data_dir": "search-results-from-database",
     "review_subdir": "children",
-    "database_csvs_subdir": "database-csvs-children"
+    "database_csvs_subdir": "children/database-csvs"
   },
   "inputs": {
     "carry_forward": {

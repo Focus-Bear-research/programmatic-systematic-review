@@ -36,7 +36,7 @@ _spec = importlib.util.spec_from_file_location("filler", "fill-missing-abstracts
 filler = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(filler)  # also loads .env
 
-CAND = "search-results-from-database/snowball/fulltext_candidates.csv"
+CAND = "search-results-from-database/adults/snowball/fulltext_candidates.csv"
 TEXT_DIR = "full_text_snowball"
 LIMIT = int(os.getenv("OA_LIMIT", "0")) or None
 os.makedirs(TEXT_DIR, exist_ok=True)

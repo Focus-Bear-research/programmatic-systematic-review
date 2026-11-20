@@ -82,26 +82,34 @@ for CHILDREN/ADOLESCENTS (under 18) with CO-OCCURRING ADHD AND autism (AuDHD). J
 criterion from the text. Be RECALL-SAFE: if a criterion is genuinely unclear, use "unclear" — \
 do not guess "fail".
 
-1. population: this review includes ONLY co-occurring AuDHD — children who have BOTH an ADHD \
-diagnosis AND an autism diagnosis in the SAME person. Be RECALL-SAFE here above all: your job is \
-NOT to exclude a paper just because its headline says only "ADHD" or only "autism". Read the \
-sample/eligibility/demographics for co-occurrence. Judge:
-   - "pass" if children/adolescents (majority <18, or a clearly reported <18 subgroup) and the \
-analysed sample — OR a clearly reported subgroup of it — has BOTH ADHD AND autism together \
-(e.g. "n=16 diagnosed with both ASD and ADHD", or a demographics/comorbidity table showing \
-participants carry both). Parent-mediated counts (parent/caregiver delivers to the under-18 child).
-   - "unclear" (do NOT fail) if the sample PLAUSIBLY contains co-occurring AuDHD participants but \
-it is not cleanly broken out: a mixed neurodevelopmental sample, an autism sample that reports some \
-comorbid ADHD (or vice-versa), or a study that does not EXCLUDE the second condition. When in doubt \
-between pass and fail, choose "unclear" so a human checks the full text.
-   - "fail" ONLY when co-occurring AuDHD is clearly impossible: adults-only; a non-ADHD/non-autism \
-population; or a pure single-diagnosis sample that plainly excludes or contains none of the other \
-condition (the other condition appears ONLY as background/prevalence/citation, never in the actual \
-participants).
-2. intervention: "pass" if a digital/technology-based intervention (mobile/web app, software, video \
-game, VR/AR, neuro/biofeedback, computerised cognitive training, robot, wearable, e-learning, video \
-modelling, AAC device, telehealth, or digitally-DELIVERED CBT/mindfulness/parent-training). "fail" if \
-non-digital (face-to-face only, medication, physical-only). "unclear" otherwise.
+1. population: This is a NARRATIVE review. It INCLUDES any study that ENROLLED at least one \
+participant with CO-OCCURRING ADHD AND autism (the SAME child has BOTH an ADHD diagnosis AND an \
+autism diagnosis) who is under 18. The co-occurring participant(s) do NOT need to be analysed as a \
+separate subgroup, do NOT need to number >=20, and do NOT need to be in the intervention arm — it is \
+ENOUGH that they were ENROLLED in the study. Be RECALL-SAFE: do NOT exclude just because the headline \
+says only "ADHD" or only "autism"; read the sample/eligibility/demographics for co-occurrence. Judge:
+   - "pass" if the sample includes children/adolescents (<18, or a clearly reported <18 subgroup) and \
+at least one enrolled participant carries BOTH ADHD AND autism — e.g. an explicit count ("6 had both \
+autism and ADHD"; "4 of 140 were diagnosed with both ASD and ADHD"), a demographics/comorbidity table \
+showing co-occurrence, OR an autism sample that reports a comorbid-ADHD percentage/count (or an ADHD \
+sample reporting comorbid autism). Even a small embedded co-occurring subset PASSES, regardless of arm \
+or whether it is analysed separately. Parent-mediated counts (parent delivers to the under-18 child).
+   - "unclear" (do NOT fail) if co-occurring AuDHD participants PLAUSIBLY exist but cannot be confirmed \
+from the text: diagnoses reported only as SEPARATE counts with no overlap stated (e.g. "63 ADHD, 35 \
+autism" with no both-count), a mixed neurodevelopmental sample that does not break out co-occurrence, \
+or a sample whose age spans into adulthood with no <18 breakdown for the co-occurring participants. \
+When in doubt between pass and fail, choose "unclear".
+   - "fail" ONLY when co-occurring AuDHD is clearly absent/impossible: adults-only (no <18 \
+participants at all); a non-ADHD/non-autism population; or a pure single-diagnosis sample where the \
+OTHER condition is only MEASURED as a symptom score / questionnaire "feature" (NOT diagnosed) or \
+appears ONLY as background/prevalence/citation and never in an actual enrolled participant.
+2. intervention: "pass" if a digital/technology-based intervention (mobile/web app, software tool, \
+video game / serious game, VR/AR, neuro/biofeedback, computerised cognitive training, robot, \
+wearable, e-learning, video modelling, AAC device, or an app-DELIVERED CBT/mindfulness/parent-training \
+PROGRAM the child uses directly). "fail" if non-digital (face-to-face only, medication, physical-only) \
+OR if the "digital" element is only the DELIVERY CHANNEL for human-delivered coaching/therapy — i.e. \
+TELEHEALTH / telecounselling / telecoaching / video-conference therapy sessions with a clinician are \
+EXCLUDED (out of scope per protocol). "unclear" otherwise.
 3. target_outcome: array of the CHILD-level clinical / behavioural / functional outcomes the study \
 MEASURES, from ["attention","executive_function","emotional_regulation","emotion_recognition",\
 "social_communication","language","anxiety_mood","behaviour","adaptive_daily_living","quality_of_life",\

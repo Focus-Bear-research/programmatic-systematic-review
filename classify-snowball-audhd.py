@@ -19,8 +19,8 @@ import pandas as pd
 from steps.config import load_config, set_active
 from steps import llm
 
-CAND = "search-results-from-database/snowball/fulltext_candidates.csv"
-OUT = "search-results-from-database/snowball/fulltext_audhd.csv"
+CAND = "search-results-from-database/adults/snowball/fulltext_candidates.csv"
+OUT = "search-results-from-database/adults/snowball/fulltext_audhd.csv"
 TEXT_DIR = "full_text_snowball"
 
 AUTISM = re.compile(r"\b(autis\w*|asd|asperger|pervasive developmental)\b", re.I)

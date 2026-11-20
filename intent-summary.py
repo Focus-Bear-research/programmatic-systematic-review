@@ -5,7 +5,7 @@ import os, sys
 sys.path.insert(0, os.getcwd())
 import pandas as pd
 
-SRC = os.getenv("INTENT_SRC", "search-results-from-database/nd_digital_adults_intent.csv")
+SRC = os.getenv("INTENT_SRC", "search-results-from-database/adults/nd_digital_adults_intent.csv")
 full = pd.read_csv(SRC, dtype=str).fillna("")
 def nz(v): return str(v).strip().lower()
 def final(r):

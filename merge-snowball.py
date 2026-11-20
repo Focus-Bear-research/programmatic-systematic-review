@@ -6,7 +6,7 @@ Dedup is PRISMA-style: by DOI first, then normalised title, tracking provenance
 (which origin and which database sources each record came from) and reporting the
 duplicate counts removed.
 
-  base    : search-results-from-database/combined.csv   (all 6 database exports)
+  base    : search-results-from-database/adults/combined.csv   (all 6 database exports)
   snowball: citation-scraping/openalex_scraped_citations.csv
 """
 
@@ -16,7 +16,7 @@ import re
 
 import pandas as pd
 
-COMBINED_CSV = "search-results-from-database/combined.csv"
+COMBINED_CSV = "search-results-from-database/adults/combined.csv"
 # Adult-relevant snowball citations (child-only-sourced citations pruned out by
 # screen-reviews-adults.py). Falls back to the full set if the pruned file is absent.
 SNOWBALL_CSV = (

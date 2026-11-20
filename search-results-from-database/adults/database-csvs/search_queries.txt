@@ -1,0 +1,18 @@
+Pubmed:
+((ADHD OR (autis* OR ASD OR Asperger*)) OR (AuDHD)) AND (app OR "mobile application" OR mHealth OR eHealth OR "digital tool" OR web-based OR software OR "digital therapeutics") AND (adult)
+
+Scopus: 
+((ADHD OR (autis* OR ASD OR Asperger* )) OR (AuDHD )) AND (app OR "mobile application" OR mHealth OR eHealth OR "digital tool" OR web-based OR software OR "digital therapeutics" ) AND (adult )
+
+Psycinfo:
+((ADHD OR (autis* OR ASD OR Asperger*)) OR (AuDHD)) AND (app OR "mobile application" OR mHealth OR eHealth OR "digital tool" OR web-based OR software OR "digital therapeutics") AND (adult)
+
+Proquest:
+AB,TI(ADHD OR "attention deficit*" OR autis* OR ASD OR Asperger* OR AuDHD OR neurodiverg*)
+AND
+AB,TI(mHealth OR eHealth OR "digital health" OR "digital therapeutic*" OR "digital intervention*" OR "digital tool*" OR "online intervention*" OR "internet-based*" OR "web-based*" OR smartphone OR wearable* OR "mobile app*" OR "mobile application*" OR app OR apps OR software) NOT (AB,TI(child* OR paediatric* OR pediatric* OR adolescen* OR infant* OR toddler* OR preschool*)
+     NOT AB,TI(adult* OR "young adult*" OR university OR college OR undergraduate OR workplace OR employee*))
+
+Web of science:
+((ADHD OR (autis* OR ASD OR Asperger*)) OR (AuDHD)) AND (app OR "mobile application" OR mHealth OR eHealth OR "digital tool" OR web-based OR software OR "digital therapeutics") AND (adult)
+

@@ -10,7 +10,7 @@ import pandas as pd
 from steps.config import load_config, set_active
 from steps import llm
 
-MASTER = "search-results-from-database/fulltext_review_master.csv"
+MASTER = "search-results-from-database/adults/fulltext_review_master.csv"
 TEXT = "full_text_snowball"
 AUTISM = re.compile(r"\b(autis\w*|asd|asperger|pervasive developmental)\b", re.I)
 ADHD = re.compile(r"\b(adhd|a\.d\.h\.d|attention[- ]deficit|hyperkinetic)\b", re.I)

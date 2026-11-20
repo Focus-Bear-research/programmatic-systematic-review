@@ -20,7 +20,7 @@ def nd(d): return normalize_doi(d) or ""
 def nt(t): return re.sub(r"[^a-z0-9 ]", " ", str(t).lower()).strip()
 
 # 1) unify corpus + DSCT (dedupe DSCT against corpus)
-comb = pd.read_csv("search-results-from-database/combined/adjudicated.csv", dtype=str).fillna("")
+comb = pd.read_csv("search-results-from-database/adults/combined/adjudicated.csv", dtype=str).fillna("")
 comb.loc[comb["origin"].str.strip() == "", "origin"] = "database_search"
 seen_doi = {nd(d) for d in comb["DOI"] if nd(d)}
 seen_t = {nt(t) for t in comb["Title"] if str(t).strip()}

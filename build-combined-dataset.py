@@ -2,10 +2,10 @@
 
   * original database review  (search-results-from-database/adjudicated.csv)
       raters = OpenAI + Gemini ; carries existing Final_/Adjudicated
-  * snowball review           (search-results-from-database/snowball/enriched.csv)
+  * snowball review           (search-results-from-database/adults/snowball/enriched.csv)
       raters = Nova + Sonnet ; not yet adjudicated
 
-Output: search-results-from-database/combined/enriched.csv
+Output: search-results-from-database/adults/combined/enriched.csv
 
 What it does:
   - normalises the two rater families into common RaterA_<f> / RaterB_<f> columns

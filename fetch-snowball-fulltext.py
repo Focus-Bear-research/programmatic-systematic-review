@@ -7,7 +7,7 @@ skips candidates whose text file already exists.
 
 Outputs:
   full_text_snowball/<doi-sanitised>.txt   — extracted full text
-  search-results-from-database/snowball/fulltext_candidates.csv  — status table
+  search-results-from-database/adults/snowball/fulltext_candidates.csv  — status table
 """
 import os, sys
 sys.path.insert(0, os.getcwd())
@@ -16,8 +16,8 @@ import pandas as pd
 from steps.full_text import fetch_open_full_text
 from steps.io import normalize_doi
 
-ENR = "search-results-from-database/snowball/enriched.csv"
-OUT = "search-results-from-database/snowball/fulltext_candidates.csv"
+ENR = "search-results-from-database/adults/snowball/enriched.csv"
+OUT = "search-results-from-database/adults/snowball/fulltext_candidates.csv"
 TEXT_DIR = "full_text_snowball"
 os.makedirs(TEXT_DIR, exist_ok=True)
 EMAIL = os.getenv("UNPAYWALL_EMAIL")

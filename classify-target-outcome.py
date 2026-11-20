@@ -11,7 +11,7 @@ import pandas as pd
 from steps.config import load_config, set_active
 from steps import llm
 
-MASTER = "search-results-from-database/fulltext_review_master.csv"
+MASTER = "search-results-from-database/adults/fulltext_review_master.csv"
 THREE = {"attention", "executive_function", "emotional_regulation"}
 ALLOWED = THREE | {"other"}
 SYSTEM = """You identify which outcome(s) a study's intervention is designed to TARGET / improve. Choose ALL that apply from:
@@ -28,7 +28,7 @@ m = pd.read_csv(MASTER, dtype=str).fillna("")
 # abstracts live in the combined dataset, not the master — join by normalised DOI
 from steps.io import normalize_doi
 def nd(d): return normalize_doi(d) or ""
-comb = pd.read_csv("search-results-from-database/combined/adjudicated.csv", dtype=str).fillna("")
+comb = pd.read_csv("search-results-from-database/adults/combined/adjudicated.csv", dtype=str).fillna("")
 AMAP = {nd(r["DOI"]): r.get("Abstract", "") for r in comb.to_dict("records") if nd(r["DOI"])}
 for c in ("target_raterA", "target_raterB", "outcome_in_scope"):
     if c not in m.columns: m[c] = ""

@@ -37,7 +37,7 @@ import pandas as pd
 
 sys.path.insert(0, os.getcwd())
 from steps.config import load_config, set_active  # noqa: E402
-from steps.constants import COL_ABSTRACT, COL_TITLE, DUPLICATE_COL, NO, YES  # noqa: E402
+from steps.constants import COL_ABSTRACT, COL_TITLE, DUPLICATE_COL, NO, UNSPECIFIED, YES  # noqa: E402
 from steps.io import is_missing_abstract  # noqa: E402
 from steps.schema import ALLOWED, CONSENSUS_FIELDS  # noqa: E402
 
@@ -57,7 +57,7 @@ VALIDATE = os.getenv("ADJ_VALIDATE", "0") not in ("0", "", "false", "False")
 VALIDATE_FRACTION = float(os.getenv("VALIDATE_FRACTION", "0.05"))
 VALIDATE_SEED = int(os.getenv("VALIDATE_SEED", "42"))
 VALIDATE_SOURCE = os.getenv("VALIDATE_SOURCE", "search-results-from-database/all_papers.csv")
-VALIDATE_OUT = os.getenv("VALIDATE_OUT", "search-results-from-database/validation_sample.csv")
+VALIDATE_OUT = os.getenv("VALIDATE_OUT", "search-results-from-database/adults/validation_sample.csv")
 VALIDATED_COL = "Validated"
 # Enriched (stratified) validation: instead of a flat 5% random draw — dominated by
 # confident excludes and near-blind to recall — sample three strata so the human sees
@@ -67,10 +67,26 @@ VALIDATE_ENRICHED = os.getenv("VALIDATE_ENRICHED", "0") not in ("0", "", "false"
 VALIDATE_N_KEEP = int(os.getenv("VALIDATE_N_KEEP", "0"))       # 0 = take ALL screen-KEEP papers
 VALIDATE_N_BORDER = int(os.getenv("VALIDATE_N_BORDER", "220"))  # AI-exclude but disagreement/unspecified
 VALIDATE_N_EXCL = int(os.getenv("VALIDATE_N_EXCL", "140"))      # confident excludes (bounds FN in the mass)
-# Screen-decision vocab — MUST mirror validation-accuracy.py so strata match the metric.
-_V_DIGITAL = {"mobile_app", "web_app", "software_tool", "video_game", "neurofeedback", "cbt",
-              "cognitive_training", "mindfulness", "chatbot", "biofeedback"}
-_V_EMPIRICAL = {"empirical_with_results", "qualitative_only_study", "case_study"}
+# Screen-decision vocab — the has_adults/study_type/neurotypes strata mirror
+# validation-accuracy.py so the strata match the metric.
+# Intervention scope: only THREE values are a decisive exclude from a
+# digital-interventions review — no real (digital) intervention is delivered as
+# treatment. Every OTHER concrete modality (vr_ar, physical_activity, wearable,
+# robotics, aac, video_modeling, social_skills_training, music_art_therapy,
+# telecoaching/telecounselling, elearning, parent_training, …) is a genuine
+# intervention that must be KEPT for full-text review, so in blind validation
+# picking one must NOT auto-exclude the paper. Deriving the keep-set from ALLOWED
+# (minus the excludes and "unspecified", which is recall-safe/kept) keeps it in
+# sync with the schema instead of a stale hardcoded list. This is intentionally
+# BROADER (recall-safe) than validation-accuracy.py's narrow digital set.
+_V_INTERVENTION_EXCLUDE = {"no_intervention", "data_collection_only", "non_software_based"}
+_V_DIGITAL = {v for v in ALLOWED["intervention_type"]
+              if v not in _V_INTERVENTION_EXCLUDE and v != UNSPECIFIED}
+# case_study is deliberately NOT here: a single-case / case-study design is
+# non-controlled and fails the rigour criterion, so in blind validation picking it
+# must short-circuit the paper to EXCLUDED (it falls into study_type's `exclude`
+# list below, reusing the same decisive-exclude skip as any other out-of-scope value).
+_V_EMPIRICAL = {"empirical_with_results", "qualitative_only_study"}
 _V_ND = {"adhd", "autistic", "audhd"}
 _V_GATE = ["has_adults", "study_type", "intervention_type", "neurotypes"]
 # Include-compatible values per screen field (mirrors passes() in validation-accuracy.py).
@@ -88,7 +104,7 @@ _V_INCLUDE = {
 # (normalisation vs skills_training vs accommodation_support). Shows both raters' picks (this is
 # adjudication, not blind validation) and writes intent_final/intent_human.
 ADJ_INTENT = os.getenv("ADJ_INTENT", "0") not in ("0", "", "false", "False")
-INTENT_SRC = os.getenv("INTENT_SRC", "search-results-from-database/nd_digital_adults_intent.csv")
+INTENT_SRC = os.getenv("INTENT_SRC", "search-results-from-database/adults/nd_digital_adults_intent.csv")
 INTENT_ALLOWED = ["normalisation", "skills_training", "accommodation_support", "unclear"]
 INTENT_ADJ_COL = "intent_adjudicated"
 

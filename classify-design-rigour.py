@@ -11,7 +11,7 @@ from steps.config import load_config, set_active
 from steps import llm
 from steps.io import normalize_doi
 
-MASTER = "search-results-from-database/fulltext_review_master.csv"
+MASTER = "search-results-from-database/adults/fulltext_review_master.csv"
 TEXT = "full_text_snowball"
 ALLOWED = {"rct", "controlled_nonrandomized", "single_case_experimental",
            "uncontrolled_prepost", "case_study_series", "qualitative_only",
@@ -32,7 +32,7 @@ cfg = load_config("adults"); set_active(cfg)
 ra, rb = cfg.rater_a, cfg.rater_b
 m = pd.read_csv(MASTER, dtype=str).fillna("")
 def nd(d): return normalize_doi(d) or ""
-comb = pd.read_csv("search-results-from-database/combined/adjudicated.csv", dtype=str).fillna("")
+comb = pd.read_csv("search-results-from-database/adults/combined/adjudicated.csv", dtype=str).fillna("")
 AMAP = {nd(r["DOI"]): r.get("Abstract", "") for r in comb.to_dict("records") if nd(r["DOI"])}
 for c in ("design_raterA", "design_raterB", "design_class"):
     if c not in m.columns: m[c] = ""

@@ -14,8 +14,8 @@ import pandas as pd
 from steps.config import load_config, set_active
 from steps import llm
 
-SRC = "search-results-from-database/nd_digital_empirical.csv"
-OUT = "search-results-from-database/nd_digital_adults_intent.csv"
+SRC = "search-results-from-database/adults/nd_digital_empirical.csv"
+OUT = "search-results-from-database/adults/nd_digital_adults_intent.csv"
 ALLOWED = {"normalisation", "skills_training", "accommodation_support", "unclear"}
 SYS = """You classify the PRIMARY INTENT of a digital intervention for neurodivergent (autistic and/or ADHD) adults.
 First ask the key question: does the intervention try to change the PERSON (internal change), or does it provide EXTERNAL supports/tools/environmental adaptation while leaving the person as they already are? Then choose ONE:

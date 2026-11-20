@@ -8,7 +8,7 @@ import pandas as pd
 from steps.schema import SCREEN_PROMPT
 
 ACCT = "369598751361"; BUCKET = f"audhd-bedrock-batch-{ACCT}"
-WORK = "search-results-from-database/combined/adjudicated.csv"
+WORK = "search-results-from-database/adults/combined/adjudicated.csv"
 MAXTOK = 400
 def nz(v): return str(v).strip().lower()
 

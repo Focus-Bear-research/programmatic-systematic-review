@@ -15,7 +15,7 @@ review — unmatched/unknown provenance is kept (recall-safe).
 Outputs:
   citation-scraping/openalex_systematic_reviews.csv          (+ adult_relevant col)
   citation-scraping/openalex_scraped_citations_adults.csv    (pruned)
-  search-results-from-database/database-csvs/openalex_citations.csv  (pruned export)
+  search-results-from-database/adults/database-csvs/openalex_citations.csv  (pruned export)
 """
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ from steps import llm  # noqa: E402
 REVIEWS_CSV = "citation-scraping/openalex_systematic_reviews.csv"
 CITATIONS_CSV = "citation-scraping/openalex_scraped_citations.csv"
 ADULTS_CITATIONS_CSV = "citation-scraping/openalex_scraped_citations_adults.csv"
-PIPELINE_EXPORT = "search-results-from-database/database-csvs/openalex_citations.csv"
+PIPELINE_EXPORT = "search-results-from-database/adults/database-csvs/openalex_citations.csv"
 PIPELINE_COLS = ["Title", "Abstract", "Authors", "Year", "DOI", "PMID", "Journal", "URL"]
 
 ADULT_PROMPT = (

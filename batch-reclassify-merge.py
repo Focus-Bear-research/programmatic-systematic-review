@@ -11,7 +11,7 @@ from steps.schema import coerce_classification, CONSENSUS_FIELDS
 from steps import rules
 
 ACCT = "369598751361"; BUCKET = f"audhd-bedrock-batch-{ACCT}"
-WORK = "search-results-from-database/combined/adjudicated.csv"
+WORK = "search-results-from-database/adults/combined/adjudicated.csv"
 WRITE = CONSENSUS_FIELDS + ["intervention_details"]
 s3 = boto3.Session(region_name="us-east-1").client("s3")
 jobs = json.load(open("/tmp/batch_jobs.json"))

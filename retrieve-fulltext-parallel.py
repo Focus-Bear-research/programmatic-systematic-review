@@ -21,7 +21,7 @@ import pandas as pd
 from steps.full_text import fetch_elsevier_fulltext, fetch_open_full_text
 from steps.io import normalize_doi
 
-CSV = sys.argv[1] if len(sys.argv) > 1 else "search-results-from-database/fulltext_to_retrieve.csv"
+CSV = sys.argv[1] if len(sys.argv) > 1 else "search-results-from-database/adults/fulltext_to_retrieve.csv"
 WORKERS = int(sys.argv[2]) if len(sys.argv) > 2 else 8
 TEXT_DIR = "full_text_snowball"
 ELS = ("10.1016", "10.1006", "10.1053", "10.1067", "10.1078")

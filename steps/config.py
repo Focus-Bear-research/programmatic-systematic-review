@@ -7,7 +7,7 @@ input/output layout and a different LLM lineup).
 
 Usage:
     cfg = load_config("adults")        # or "children", or any other slug
-    cfg.combined_csv                   # -> "search-results-from-database/combined.csv"
+    cfg.combined_csv                   # -> "search-results-from-database/adults/combined.csv"
     cfg.adjudicated_csv                # -> "search-results-from-database/adjudicated.csv"
     cfg.rater("a").model_id            # -> "apac.amazon.nova-lite-v1:0"
 

@@ -14,7 +14,7 @@ os.makedirs(DEST, exist_ok=True); os.makedirs(TEXT, exist_ok=True)
 def nd(d): return normalize_doi(d) or ""
 def fid(doi): return nd(doi).replace("/", "_").replace(":", "_")
 
-df = pd.read_csv("search-results-from-database/fulltext_to_retrieve.csv", dtype=str).fillna("")
+df = pd.read_csv("search-results-from-database/adults/fulltext_to_retrieve.csv", dtype=str).fillna("")
 # variant -> row index
 vmap = {}
 for i, r in df.iterrows():

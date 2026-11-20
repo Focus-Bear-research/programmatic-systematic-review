@@ -11,7 +11,7 @@ from steps import rules, screen
 from steps.config import load_config, set_active
 
 ACCT = "369598751361"; BUCKET = f"audhd-bedrock-batch-{ACCT}"
-WORK = "search-results-from-database/combined/adjudicated.csv"
+WORK = "search-results-from-database/adults/combined/adjudicated.csv"
 s3 = boto3.Session(region_name="us-east-1").client("s3")
 jobs = json.load(open("/tmp/rescreen_jobs.json"))
 cfg = load_config("adults"); set_active(cfg)

@@ -8,7 +8,7 @@ sys.path.insert(0, os.getcwd())
 import pandas as pd
 from steps.schema import CONSENSUS_FIELDS
 
-SAMPLE = os.getenv("VALIDATE_OUT", "search-results-from-database/validation_sample.csv")
+SAMPLE = os.getenv("VALIDATE_OUT", "search-results-from-database/adults/validation_sample.csv")
 DIGITAL = {"mobile_app", "web_app", "software_tool", "video_game", "neurofeedback", "cbt",
            "cognitive_training", "mindfulness", "chatbot", "biofeedback"}
 EMPIRICAL = {"empirical_with_results", "qualitative_only_study", "case_study"}
