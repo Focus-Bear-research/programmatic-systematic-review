@@ -5,10 +5,11 @@ Order, all free / no login:
   2. Unpaywall best OA location — PDF (parsed with pypdf) or HTML landing.
 
 Paywalled papers (no OA location) are left for the OpenAthens/Playwright pass,
-which needs an interactive RMIT login and is run separately.
+which needs an interactive institutional login and is run separately.
 
 ``fetch_open_full_text(doi, pmid, email)`` returns ``(text|None, source)``.
 """
+
 from __future__ import annotations
 
 import io
@@ -54,6 +55,7 @@ def _xml_to_text(xml: str) -> str | None:
 def _has_lxml() -> bool:
     try:
         import lxml  # noqa: F401
+
         return True
     except Exception:
         return False
@@ -106,6 +108,7 @@ def fetch_pmc_fulltext(doi: str | None, pmid: str | None) -> str | None:
 def _pdf_to_text(data: bytes) -> str | None:
     try:
         from pypdf import PdfReader
+
         reader = PdfReader(io.BytesIO(data))
         text = "\n".join((p.extract_text() or "") for p in reader.pages)
     except Exception:
@@ -162,15 +165,17 @@ def fetch_elsevier_fulltext(doi: str, api_key: str | None = None) -> str | None:
     """ScienceDirect Article Retrieval API (FULL view) → article body text.
 
     Entitled by institution: returns full text only from a subscribing IP (e.g.
-    on the RMIT network/wifi) or with an institution token. Off-campus -> 401.
+    on the institution's network) or with an institution token. Off-campus -> 401.
     Extracts the <ce:para> body paragraphs (clean), falling back to <originalText>.
     """
     import os
+
     api_key = api_key or os.getenv("ELSEVIER_API_KEY")
     if not api_key:
         return None
     try:
         from urllib.parse import quote
+
         r = SESSION.get(
             f"{ELSEVIER_ARTICLE}/{quote(doi, safe='')}",
             params={"view": "FULL"},
@@ -202,8 +207,11 @@ def _url_to_text(url: str | None) -> str | None:
     if resp.status_code != 200 or not resp.content:
         return None
     ctype = resp.headers.get("Content-Type", "").lower()
-    text = _pdf_to_text(resp.content) if ("pdf" in ctype or url.lower().endswith(".pdf")) \
+    text = (
+        _pdf_to_text(resp.content)
+        if ("pdf" in ctype or url.lower().endswith(".pdf"))
         else _html_to_text(resp.text)
+    )
     return text or None
 
 

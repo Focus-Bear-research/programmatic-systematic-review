@@ -35,11 +35,10 @@ from urllib.parse import parse_qs, urlparse
 
 import pandas as pd
 
-sys.path.insert(0, os.getcwd())
-from steps.config import load_config, set_active  # noqa: E402
-from steps.constants import COL_ABSTRACT, COL_TITLE, DUPLICATE_COL, NO, UNSPECIFIED, YES  # noqa: E402
-from steps.io import is_missing_abstract  # noqa: E402
-from steps.schema import ALLOWED, CONSENSUS_FIELDS  # noqa: E402
+from steps.config import load_config, set_active
+from steps.constants import COL_ABSTRACT, COL_TITLE, DUPLICATE_COL, NO, UNSPECIFIED, YES
+from steps.io import is_missing_abstract
+from steps.schema import ALLOWED, CONSENSUS_FIELDS
 
 PORT = int(os.getenv("ADJ_UI_PORT", "8000"))
 ADJUDICATED_COL = "Adjudicated"
@@ -62,13 +61,13 @@ VALIDATED_COL = "Validated"
 # Enriched (stratified) validation: instead of a flat 5% random draw — dominated by
 # confident excludes and near-blind to recall — sample three strata so the human sees
 # every screen-KEEP plus an oversample of the borderline zone where false-negatives hide.
-# validation-accuracy.py weights each stratum back to the population for unbiased rates.
+# scripts/validation/validation_accuracy.py weights each stratum back to the population for unbiased rates.
 VALIDATE_ENRICHED = os.getenv("VALIDATE_ENRICHED", "0") not in ("0", "", "false", "False")
-VALIDATE_N_KEEP = int(os.getenv("VALIDATE_N_KEEP", "0"))       # 0 = take ALL screen-KEEP papers
+VALIDATE_N_KEEP = int(os.getenv("VALIDATE_N_KEEP", "0"))  # 0 = take ALL screen-KEEP papers
 VALIDATE_N_BORDER = int(os.getenv("VALIDATE_N_BORDER", "220"))  # AI-exclude but disagreement/unspecified
-VALIDATE_N_EXCL = int(os.getenv("VALIDATE_N_EXCL", "140"))      # confident excludes (bounds FN in the mass)
+VALIDATE_N_EXCL = int(os.getenv("VALIDATE_N_EXCL", "140"))  # confident excludes (bounds FN in the mass)
 # Screen-decision vocab — the has_adults/study_type/neurotypes strata mirror
-# validation-accuracy.py so the strata match the metric.
+# scripts/validation/validation_accuracy.py so the strata match the metric.
 # Intervention scope: only THREE values are a decisive exclude from a
 # digital-interventions review — no real (digital) intervention is delivered as
 # treatment. Every OTHER concrete modality (vr_ar, physical_activity, wearable,
@@ -78,10 +77,11 @@ VALIDATE_N_EXCL = int(os.getenv("VALIDATE_N_EXCL", "140"))      # confident excl
 # picking one must NOT auto-exclude the paper. Deriving the keep-set from ALLOWED
 # (minus the excludes and "unspecified", which is recall-safe/kept) keeps it in
 # sync with the schema instead of a stale hardcoded list. This is intentionally
-# BROADER (recall-safe) than validation-accuracy.py's narrow digital set.
+# BROADER (recall-safe) than scripts/validation/validation_accuracy.py's narrow digital set.
 _V_INTERVENTION_EXCLUDE = {"no_intervention", "data_collection_only", "non_software_based"}
-_V_DIGITAL = {v for v in ALLOWED["intervention_type"]
-              if v not in _V_INTERVENTION_EXCLUDE and v != UNSPECIFIED}
+_V_DIGITAL = {
+    v for v in ALLOWED["intervention_type"] if v not in _V_INTERVENTION_EXCLUDE and v != UNSPECIFIED
+}
 # case_study is deliberately NOT here: a single-case / case-study design is
 # non-controlled and fails the rigour criterion, so in blind validation picking it
 # must short-circuit the paper to EXCLUDED (it falls into study_type's `exclude`
@@ -89,7 +89,7 @@ _V_DIGITAL = {v for v in ALLOWED["intervention_type"]
 _V_EMPIRICAL = {"empirical_with_results", "qualitative_only_study"}
 _V_ND = {"adhd", "autistic", "audhd"}
 _V_GATE = ["has_adults", "study_type", "intervention_type", "neurotypes"]
-# Include-compatible values per screen field (mirrors passes() in validation-accuracy.py).
+# Include-compatible values per screen field (mirrors passes() in scripts/validation/validation_accuracy.py).
 # In blind validation, picking a concrete value OUTSIDE these sets (and not "unspecified",
 # which is recall-safe/kept) is a decisive exclude → skip the remaining fields and advance.
 _V_INCLUDE = {
@@ -120,10 +120,21 @@ EXCLUDING_AGREED = {
     "neurotypes": {"neither_adhd_nor_autistic"},
     "study_type": {"review", "protocol", "proposal", "commentary"},
     "intervention_type": {
-        "no_intervention", "data_collection_only", "parent_training",
-        "telecoaching", "telecounselling", "wearable", "vr_ar", "video_modeling",
-        "social_skills_training", "aac", "physical_activity", "robotics", "music_art_therapy",
-        "elearning", "non_software_based",
+        "no_intervention",
+        "data_collection_only",
+        "parent_training",
+        "telecoaching",
+        "telecounselling",
+        "wearable",
+        "vr_ar",
+        "video_modeling",
+        "social_skills_training",
+        "aac",
+        "physical_activity",
+        "robotics",
+        "music_art_therapy",
+        "elearning",
+        "non_software_based",
     },
 }
 
@@ -136,8 +147,18 @@ EXCLUDING_AGREED = {
 INCLUDING_AGREED = {
     "has_adults": {"yes"},
     "study_type": {"empirical_with_results", "qualitative_only_study", "case_study"},
-    "intervention_type": {"mobile_app", "web_app", "software_tool", "video_game", "neurofeedback",
-                          "cbt", "cognitive_training", "mindfulness", "chatbot", "biofeedback"},
+    "intervention_type": {
+        "mobile_app",
+        "web_app",
+        "software_tool",
+        "video_game",
+        "neurofeedback",
+        "cbt",
+        "cognitive_training",
+        "mindfulness",
+        "chatbot",
+        "biofeedback",
+    },
     "neurotypes": {"adhd", "autistic", "audhd"},
 }
 
@@ -151,10 +172,11 @@ class State:
         self.cfg = load_config(slug)
         # Optionally point at a review sub-directory (e.g. ADJ_REVIEW_SUBDIR=snowball
         # to adjudicate the snowball arm's snowball/enriched.csv instead of the base
-        # review), matching how classify-snowball.py isolates its outputs.
+        # review), matching how scripts/snowball/classify_snowball.py isolates its outputs.
         subdir = os.getenv("ADJ_REVIEW_SUBDIR", "").strip()
         if subdir:
             import dataclasses
+
             self.cfg = dataclasses.replace(self.cfg, review_subdir=subdir)
         set_active(self.cfg)
         # Only fields that affect THIS review's inclusion drive the queue. The age
@@ -163,8 +185,11 @@ class State:
         # on it alone must NOT require adjudication.
         age = {"has_adults", "has_under_18"}
         require_age = (self.cfg.raw.get("screening") or {}).get("require_age")
-        self.queue_fields = ([f for f in CONSENSUS_FIELDS if f not in age or f == require_age]
-                             if require_age in age else list(CONSENSUS_FIELDS))
+        self.queue_fields = (
+            [f for f in CONSENSUS_FIELDS if f not in age or f == require_age]
+            if require_age in age
+            else list(CONSENSUS_FIELDS)
+        )
         self.slug = slug
         self.a_pref, self.b_pref, self.a_label, self.b_label = ("", "", "", "")
         self.out_path = self.cfg.adjudicated_csv
@@ -191,7 +216,7 @@ class State:
             a, a_label = "OpenAI", f"{a_label} (legacy col: OpenAI)"
         if not has_cols(b) and has_cols("Gemini"):
             b, b_label = "Gemini", f"{b_label} (legacy col: Gemini)"
-        # Combined dataset (build-combined-dataset.py) normalises both arms'
+        # Combined dataset (scripts/adults/build_combined_dataset.py) normalises both arms'
         # raters into RaterA_/RaterB_ columns; per-row model is in RaterA_model/
         # RaterB_model. Use those when present.
         if not has_cols(a) and has_cols("RaterA"):
@@ -236,17 +261,24 @@ class State:
     def _enriched_sample(self, elig):
         """Stratified validation draw: all screen-KEEP + oversampled BORDER + a
         bounded EXCL sample. Tags each row with its stratum and population weight so
-        validation-accuracy.py can produce unbiased population sensitivity/specificity."""
+        scripts/validation/validation_accuracy.py can produce unbiased population sensitivity/specificity."""
+
         def passes(r):
-            return (self._ai_label(r, "neurotypes") in _V_ND
-                    and self._ai_label(r, "has_adults") in ("yes", "unspecified")
-                    and self._ai_label(r, "intervention_type") in _V_DIGITAL
-                    and self._ai_label(r, "study_type") in _V_EMPIRICAL)
+            return (
+                self._ai_label(r, "neurotypes") in _V_ND
+                and self._ai_label(r, "has_adults") in ("yes", "unspecified")
+                and self._ai_label(r, "intervention_type") in _V_DIGITAL
+                and self._ai_label(r, "study_type") in _V_EMPIRICAL
+            )
+
         def borderline(r):
-            dis = any(str(r.get(f"RaterA_{f}", "")).strip().lower()
-                      != str(r.get(f"RaterB_{f}", "")).strip().lower() for f in _V_GATE)
+            dis = any(
+                str(r.get(f"RaterA_{f}", "")).strip().lower() != str(r.get(f"RaterB_{f}", "")).strip().lower()
+                for f in _V_GATE
+            )
             uns = any("unspec" in self._ai_label(r, f) for f in _V_GATE)
             return dis or uns
+
         p = elig.apply(passes, axis=1)
         b = elig.apply(borderline, axis=1)
         strata = {
@@ -254,22 +286,27 @@ class State:
             "border": elig[(~p) & b],
             "excl": elig[(~p) & (~b)],
         }
-        want = {"keep": VALIDATE_N_KEEP or len(strata["keep"]),
-                "border": VALIDATE_N_BORDER, "excl": VALIDATE_N_EXCL}
+        want = {
+            "keep": VALIDATE_N_KEEP or len(strata["keep"]),
+            "border": VALIDATE_N_BORDER,
+            "excl": VALIDATE_N_EXCL,
+        }
         parts = []
         for name, sub in strata.items():
             k = min(want[name], len(sub))
             s = sub if k >= len(sub) else sub.sample(n=k, random_state=VALIDATE_SEED)
             s = s.copy()
             s["Validate_stratum"] = name
-            s["Validate_stratum_pop"] = str(len(sub))   # population size of the stratum
-            s["Validate_stratum_n"] = str(k)            # number sampled from it
+            s["Validate_stratum_pop"] = str(len(sub))  # population size of the stratum
+            s["Validate_stratum_n"] = str(k)  # number sampled from it
             parts.append(s)
         df = pd.concat(parts)
         # Interleave strata so the human isn't screening one block at a time (which
         # would bias fatigue/anchoring by stratum).
         df = df.sample(frac=1, random_state=VALIDATE_SEED).reset_index(drop=True)
-        breakdown = ", ".join(f"{n}={min(want[n], len(strata[n]))}/{len(strata[n])}" for n in ("keep", "border", "excl"))
+        breakdown = ", ".join(
+            f"{n}={min(want[n], len(strata[n]))}/{len(strata[n])}" for n in ("keep", "border", "excl")
+        )
         return df, f"{VALIDATE_SOURCE} (ENRICHED stratified: {breakdown}; seed {VALIDATE_SEED})"
 
     def _load_validate(self) -> None:
@@ -296,8 +333,7 @@ class State:
                 df[f"Validate_{f}"] = ""
         if VALIDATED_COL not in df.columns:
             df[VALIDATED_COL] = ""
-        df = df.astype({c: object for c in df.columns
-                        if c.startswith("Validate_") or c == VALIDATED_COL})
+        df = df.astype({c: object for c in df.columns if c.startswith("Validate_") or c == VALIDATED_COL})
         self.df = df
         self.queue = [i for i in df.index if self._nz(df.at[i, VALIDATED_COL]) != HUMAN]
         self.queue_all = list(df.index)
@@ -306,8 +342,11 @@ class State:
         self.skipped_dead = 0
         if not os.path.exists(VALIDATE_OUT):
             self._save_df()  # persist the sample so it's fixed across restarts
-        print(f"[{self.slug}] BLIND VALIDATION: {len(df)} sampled papers | "
-              f"{len(self.queue)} to screen | source: {src}", flush=True)
+        print(
+            f"[{self.slug}] BLIND VALIDATION: {len(df)} sampled papers | "
+            f"{len(self.queue)} to screen | source: {src}",
+            flush=True,
+        )
 
     def _load_intent(self) -> None:
         """Queue the intent-coding disagreements for human adjudication."""
@@ -315,18 +354,26 @@ class State:
         for c in ("intent_final", "intent_human", INTENT_ADJ_COL, "intent_has_adults"):
             if c not in df.columns:
                 df[c] = ""
-        df = df.astype({c: object for c in ("intent_final", "intent_human", INTENT_ADJ_COL, "intent_has_adults")})
+        df = df.astype(
+            {c: object for c in ("intent_final", "intent_human", INTENT_ADJ_COL, "intent_has_adults")}
+        )
         self.df = df
         self.queue_fields = ["intent"]
-        self.queue = [i for i in df.index
-                      if self._nz(df.at[i, "intent_consensus"]) == "disagree"
-                      and self._nz(df.at[i, INTENT_ADJ_COL]) != HUMAN]
+        self.queue = [
+            i
+            for i in df.index
+            if self._nz(df.at[i, "intent_consensus"]) == "disagree"
+            and self._nz(df.at[i, INTENT_ADJ_COL]) != HUMAN
+        ]
         self.queue_all = self.queue
         self.queue_relevant = self.queue
         self.agreed = int((df["intent_consensus"].astype(str).str.lower() != "disagree").sum())
         self.skipped_dead = 0
-        print(f"[{self.slug}] INTENT ADJUDICATION: {len(df)} studies | "
-              f"{len(self.queue)} disagreements to resolve | {self.agreed} already agreed", flush=True)
+        print(
+            f"[{self.slug}] INTENT ADJUDICATION: {len(df)} studies | "
+            f"{len(self.queue)} disagreements to resolve | {self.agreed} already agreed",
+            flush=True,
+        )
 
     def _load(self) -> None:
         if ADJ_INTENT:
@@ -353,7 +400,7 @@ class State:
         df = self._ensure_final_cols(df)
 
         # Agreement pass + queue build (mirrors steps/adjudicate.py).
-        queue_all: list[int] = []      # every disagreement
+        queue_all: list[int] = []  # every disagreement
         queue_relevant: list[int] = []  # disagreements that could change inclusion
         agreed = 0
         skipped_dead = 0
@@ -465,7 +512,9 @@ class State:
             "blind": VALIDATE,
             "a_label": "Rater A" if ADJ_INTENT else self.a_label,
             "b_label": "Rater B" if ADJ_INTENT else self.b_label,
-            "mode": "intent-adjudication" if ADJ_INTENT else ("blind-validation" if VALIDATE else ("all" if SHOW_ALL else "decision-relevant")),
+            "mode": "intent-adjudication"
+            if ADJ_INTENT
+            else ("blind-validation" if VALIDATE else ("all" if SHOW_ALL else "decision-relevant")),
             "total_disagreements": len(self.queue),
             "total_all": len(getattr(self, "queue_all", self.queue)),
             "total_relevant": len(getattr(self, "queue_relevant", self.queue)),
@@ -482,9 +531,14 @@ class State:
     def paper(self, idx: int) -> dict:
         row = self.df.loc[idx]
         if ADJ_INTENT:
-            det = str(row.get("Consensus_intervention_details") or row.get("RaterB_intervention_details") or "").strip()
-            abstract = (f"INTERVENTION: {det}\n\n{row.get(COL_ABSTRACT, '')}" if det
-                        else str(row.get(COL_ABSTRACT, "")))
+            det = str(
+                row.get("Consensus_intervention_details") or row.get("RaterB_intervention_details") or ""
+            ).strip()
+            abstract = (
+                f"INTERVENTION: {det}\n\n{row.get(COL_ABSTRACT, '')}"
+                if det
+                else str(row.get(COL_ABSTRACT, ""))
+            )
             ra_ad = str(row.get("RaterA_has_adults", "")).strip()
             rb_ad = str(row.get("RaterB_has_adults", "")).strip()
             adults_cur = str(row.get("intent_has_adults", "")).strip() or "yes"
@@ -495,13 +549,15 @@ class State:
                 "doi": str(row.get("DOI", "")),
                 "journal": str(row.get("Journal", "")),
                 "year": str(row.get("Year", "")),
-                "a_reason": "", "b_reason": "",
+                "a_reason": "",
+                "b_reason": "",
                 "resolved": self._nz(row.get(INTENT_ADJ_COL, "")) == HUMAN,
                 "fields": [
                     {
                         # Age gate: press "no" to exclude a non-adult study and auto-skip.
                         "name": "adults",
-                        "a": ra_ad, "b": rb_ad,
+                        "a": ra_ad,
+                        "b": rb_ad,
                         "agree": ra_ad.lower() == rb_ad.lower(),
                         "allowed": ["yes", "no"],
                         "current": adults_cur,
@@ -521,15 +577,26 @@ class State:
             if VALIDATE:
                 # Blind: never expose the AI labels; the human chooses from scratch.
                 inc = _V_INCLUDE.get(f)
-                exclude = ([v for v in ALLOWED[f]
-                            if str(v).strip().lower() not in inc and str(v).strip().lower() != "unspecified"]
-                           if inc else [])
-                fields.append({
-                    "name": f, "a": "", "b": "", "agree": False,
-                    "allowed": ALLOWED[f],
-                    "exclude": exclude,
-                    "current": str(row.get(f"Validate_{f}", "")).strip(),
-                })
+                exclude = (
+                    [
+                        v
+                        for v in ALLOWED[f]
+                        if str(v).strip().lower() not in inc and str(v).strip().lower() != "unspecified"
+                    ]
+                    if inc
+                    else []
+                )
+                fields.append(
+                    {
+                        "name": f,
+                        "a": "",
+                        "b": "",
+                        "agree": False,
+                        "allowed": ALLOWED[f],
+                        "exclude": exclude,
+                        "current": str(row.get(f"Validate_{f}", "")).strip(),
+                    }
+                )
                 continue
             a = str(row.get(f"{self.a_pref}_{f}", "")).strip()
             b = str(row.get(f"{self.b_pref}_{f}", "")).strip()
@@ -539,14 +606,16 @@ class State:
             # value for every field" on the agreed ones).
             if not cur and a and a.lower() == b.lower():
                 cur = a
-            fields.append({
-                "name": f,
-                "a": a,
-                "b": b,
-                "agree": a.lower() == b.lower(),
-                "allowed": ALLOWED[f],
-                "current": cur,
-            })
+            fields.append(
+                {
+                    "name": f,
+                    "a": a,
+                    "b": b,
+                    "agree": a.lower() == b.lower(),
+                    "allowed": ALLOWED[f],
+                    "current": cur,
+                }
+            )
         # Show rater reasoning if present (helps the human decide) — never in blind mode.
         a_reason = "" if VALIDATE else str(row.get(f"{self.a_pref}_reasoning", "")).strip()
         b_reason = "" if VALIDATE else str(row.get(f"{self.b_pref}_reasoning", "")).strip()

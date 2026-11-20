@@ -159,8 +159,7 @@ def load_config(slug: str) -> Config:
     path = CONFIGS_DIR / f"{slug}.json"
     if not path.exists():
         raise FileNotFoundError(
-            f"no config at {path}. Available: "
-            f"{sorted(p.stem for p in CONFIGS_DIR.glob('*.json'))}"
+            f"no config at {path}. Available: " f"{sorted(p.stem for p in CONFIGS_DIR.glob('*.json'))}"
         )
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
@@ -168,8 +167,8 @@ def load_config(slug: str) -> Config:
     paths = data.get("paths", {})
     legacy = data.get("legacy_column_prefixes", {})
     # AWS profile resolution order: explicit AWS_PROFILE env var > config field
-    # > the project default of "phd". Per-rater entries can still override.
-    default_profile = os.getenv("AWS_PROFILE") or data.get("aws_profile", "phd")
+    # > boto3's default credential chain. Per-rater entries can still override.
+    default_profile = os.getenv("AWS_PROFILE") or data.get("aws_profile", "")
 
     raters: dict[str, RaterConfig] = {}
     for key, raw in (data.get("raters") or {}).items():
@@ -236,23 +235,50 @@ def active() -> Config:
 # --- Misc env-var helpers (API keys for non-LLM services) ---------------
 
 
+class MissingSettingError(RuntimeError):
+    """A required environment variable is not set."""
+
+
+def require_env(name: str, purpose: str) -> str:
+    """Return environment variable ``name`` or fail with a message saying what it is for."""
+    value = os.getenv(name)
+    if not value:
+        raise MissingSettingError(f"{name} is not set ({purpose}). Add it to .env; see .env.example.")
+    return value
+
+
 def semantic_scholar_key() -> str | None:
-    # DISABLED 2026-06: the institutional S2 API key is dead (returns 403).
-    # Keyless S2 returns 200 with ~1 req/s throttling, which the fetcher already
-    # enforces, so we deliberately ignore any env var to avoid re-attaching the
-    # dead key. Re-enable by restoring the getenv lookup below once a live key exists.
-    return None
-    # return os.getenv("SEMANTIC_SCHOLAR_API_KEY") or os.getenv("S2_API_KEY")
+    return os.getenv("SEMANTIC_SCHOLAR_API_KEY") or os.getenv("S2_API_KEY")
 
 
 def unpaywall_email() -> str | None:
-    return os.getenv("UNPAYWALL_EMAIL")
+    return os.getenv("UNPAYWALL_EMAIL") or os.getenv("CONTACT_EMAIL")
+
+
+def contact_email() -> str:
+    """Email sent to OpenAlex, Unpaywall and Crossref so they can reach the operator."""
+    for name in ("CONTACT_EMAIL", "UNPAYWALL_EMAIL", "OPENALEX_MAILTO"):
+        value = os.getenv(name)
+        if value:
+            return value
+    return require_env(
+        "CONTACT_EMAIL", "contact address for the OpenAlex / Unpaywall / Crossref polite pools"
+    )
+
+
+def openathens_redirector() -> str:
+    """Institution-specific OpenAthens redirector base URL."""
+    return require_env(
+        "OPENATHENS_REDIRECTOR",
+        "your institution's OpenAthens redirector, e.g. https://go.openathens.net/redirector/<domain>",
+    )
 
 
 # --- Back-compat shims (so existing imports keep working) ---------------
 # The whole point of the refactor is to consume cfg.* attributes, but
 # older modules and ad-hoc scripts import DATA_DIR, COMBINED_CSV, etc. as
 # module-level constants. We expose them by deferring to the active config.
+
 
 def _resolve(attr: str) -> str:
     return getattr(active(), attr)

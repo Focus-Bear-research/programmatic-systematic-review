@@ -5,7 +5,7 @@ possible.  Skips rows already marked as duplicates (their abstracts are
 backfilled from the primary in the dedupe step) and rows without a DOI.
 
 For deeper coverage (paywalled content via OpenAthens), run the standalone CLI
-``fill-missing-abstracts-by-doi.py --playwright`` over the input spreadsheet
+``scripts/abstracts/fill_missing_abstracts_by_doi.py --playwright`` over the input spreadsheet
 before kicking off the pipeline.
 """
 
@@ -83,10 +83,7 @@ def run(df: pd.DataFrame) -> pd.DataFrame:
         )
     else:
         df = df.copy().fillna("")
-        print(
-            f"Step 2.5 [{cfg.slug}]: filling missing abstracts "
-            f"({len(df)} rows in deduped set)..."
-        )
+        print(f"Step 2.5 [{cfg.slug}]: filling missing abstracts " f"({len(df)} rows in deduped set)...")
 
     is_dup = (
         df[DUPLICATE_COL].astype(str).str.strip().str.upper() == YES

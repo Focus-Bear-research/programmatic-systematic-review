@@ -71,8 +71,8 @@ def main(slug: str = "adults") -> None:
     combined = combine.run()
     deduped = dedupe.run(combined)
     filled = fill_abstracts.run(deduped)
-    screened = screen.run(filled)          # Phase 1: coarse age + is_empirical gate
-    enriched = classify.run(screened)      # Phase 2: detail only on papers that pass
+    screened = screen.run(filled)  # Phase 1: coarse age + is_empirical gate
+    enriched = classify.run(screened)  # Phase 2: detail only on papers that pass
     adjudicate.run(enriched)
 
     print("\nPRISMA stage counts:")

@@ -51,8 +51,11 @@ def _user_prompt(title: str, abstract: str) -> str:
 
 def screen_with(rater: RaterConfig, title: str, abstract: str) -> dict:
     raw = llm.invoke_json(
-        rater, system_prompt=SCREEN_PROMPT,
-        user_prompt=_user_prompt(title, abstract), temperature=TEMPERATURE, max_tokens=400,
+        rater,
+        system_prompt=SCREEN_PROMPT,
+        user_prompt=_user_prompt(title, abstract),
+        temperature=TEMPERATURE,
+        max_tokens=400,
     )
     return coerce_screen(raw)
 
@@ -71,16 +74,19 @@ def _require_age(cfg) -> str | None:
 
 def _gate(a_res: dict, b_res: dict, require_age: str | None) -> tuple[str, str]:
     """Recall-safe pass/fail. Returns (Screen_Pass, Screen_Reason)."""
+
     def both_no(field: str) -> bool:
         return (
-            str(a_res.get(field, "")).strip().lower() == NO.lower() or
-            str(a_res.get(field, "")).strip().lower() == "no"
-        ) and (
-            str(b_res.get(field, "")).strip().lower() == "no"
-        )
+            str(a_res.get(field, "")).strip().lower() == NO.lower()
+            or str(a_res.get(field, "")).strip().lower() == "no"
+        ) and (str(b_res.get(field, "")).strip().lower() == "no")
+
     def both_yes(field: str) -> bool:
-        return (str(a_res.get(field, "")).strip().lower() == "yes"
-                and str(b_res.get(field, "")).strip().lower() == "yes")
+        return (
+            str(a_res.get(field, "")).strip().lower() == "yes"
+            and str(b_res.get(field, "")).strip().lower() == "yes"
+        )
+
     if both_no("is_empirical"):
         return NO, "non_empirical"
     if both_yes("is_parent_mediated"):
@@ -160,9 +166,12 @@ def run(df: pd.DataFrame) -> pd.DataFrame:
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
         futures = [
             pool.submit(
-                _screen_row, idx,
-                str(df.at[idx, COL_TITLE] or ""), str(df.at[idx, COL_ABSTRACT] or ""),
-                cfg.rater_a, cfg.rater_b,
+                _screen_row,
+                idx,
+                str(df.at[idx, COL_TITLE] or ""),
+                str(df.at[idx, COL_ABSTRACT] or ""),
+                cfg.rater_a,
+                cfg.rater_b,
             )
             for idx in pending
         ]
@@ -197,15 +206,15 @@ def run(df: pd.DataFrame) -> pd.DataFrame:
     print(f"  screen complete: {passed_n} pass -> Phase 2, {failed_n} short-circuited")
     if failed_n:
         print("   reasons: " + ", ".join(f"{k}={v}" for k, v in reasons.value_counts().items()))
-    prisma.record_stage(
-        "screen", total=len(df), passed=passed_n, short_circuited=failed_n
-    )
+    prisma.record_stage("screen", total=len(df), passed=passed_n, short_circuited=failed_n)
     return df
 
 
 if __name__ == "__main__":  # convenience: run just the screen on the deduped/filled csv
     import sys
+
     from .config import load_config, set_active
+
     cfg = load_config(sys.argv[1] if len(sys.argv) > 1 else "adults")
     set_active(cfg)
     src = cfg.abstracts_filled_csv if os.path.exists(cfg.abstracts_filled_csv) else cfg.deduped_csv

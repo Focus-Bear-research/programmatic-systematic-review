@@ -19,7 +19,6 @@ API). Keys for AWS auth come from the standard environment (``AWS_ACCESS_KEY_ID`
 from __future__ import annotations
 
 import os
-import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
@@ -82,6 +81,7 @@ def classify_with(rater: RaterConfig, title: str, abstract: str) -> dict:
 # Back-compat shims so any external scripts that import these still work.
 # They look up the active config every call so config switching keeps working.
 
+
 def classify_openai(title: str, abstract: str) -> dict:
     return classify_with(active().rater_a, title, abstract)
 
@@ -110,10 +110,7 @@ def _consensus_reached(a_res: dict, b_res: dict) -> str:
     if not a_res or not b_res:
         return NO
     for field in CONSENSUS_FIELDS:
-        if (
-            str(a_res.get(field, "")).strip().lower()
-            != str(b_res.get(field, "")).strip().lower()
-        ):
+        if str(a_res.get(field, "")).strip().lower() != str(b_res.get(field, "")).strip().lower():
             return NO
     return YES
 
@@ -215,15 +212,13 @@ def run(df: pd.DataFrame) -> pd.DataFrame:
     # the LLMs. Filter on is_duplicate != "Y" downstream for the unique set.
     skipped_dups = 0
     if DUPLICATE_COL in df.columns:
-        dup_unprocessed = (
-            df[DUPLICATE_COL].astype(str).str.strip().str.upper() == YES
-        ) & df[CONSENSUS_REACHED_COL].isna()
+        dup_unprocessed = (df[DUPLICATE_COL].astype(str).str.strip().str.upper() == YES) & df[
+            CONSENSUS_REACHED_COL
+        ].isna()
         skipped_dups = int(dup_unprocessed.sum())
         df.loc[dup_unprocessed, CONSENSUS_REACHED_COL] = ""
 
-    print(
-        f"Step 3: classifying with {cfg.rater_a.label} + {cfg.rater_b.label} via Bedrock"
-    )
+    print(f"Step 3: classifying with {cfg.rater_a.label} + {cfg.rater_b.label} via Bedrock")
 
     # Per unique row with an abstract, decide which raters still need to run.
     # A row is "done" only once BOTH raters have a stored result, so a row that
@@ -241,9 +236,10 @@ def run(df: pd.DataFrame) -> pd.DataFrame:
         # intervention_type as non_empirical so the disposition is visible, and
         # don't spend any LLM calls on them.
         if str(row.get(SCREEN_PASS_COL, "")).strip().upper() == NO:
-            if pd.isna(row.get("Consensus_intervention_type")) or not str(
-                row.get("Consensus_intervention_type", "") or ""
-            ).strip():
+            if (
+                pd.isna(row.get("Consensus_intervention_type"))
+                or not str(row.get("Consensus_intervention_type", "") or "").strip()
+            ):
                 df.at[idx, "Consensus_intervention_type"] = NON_EMPIRICAL
             df.at[idx, CONSENSUS_REACHED_COL] = NO
             continue
@@ -303,9 +299,7 @@ def run(df: pd.DataFrame) -> pd.DataFrame:
             if not a_full or not b_full:
                 continue
             for field in ALL_FIELDS:
-                df.at[idx, f"Consensus_{field}"] = _consensus_value(
-                    a_full.get(field), b_full.get(field)
-                )
+                df.at[idx, f"Consensus_{field}"] = _consensus_value(a_full.get(field), b_full.get(field))
             df.at[idx, CONSENSUS_REACHED_COL] = _consensus_reached(a_full, b_full)
             done += 1
             if done % CHECKPOINT_EVERY == 0:

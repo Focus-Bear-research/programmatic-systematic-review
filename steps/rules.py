@@ -15,8 +15,6 @@ from __future__ import annotations
 
 import re
 
-from .constants import UNSPECIFIED
-
 
 def _norm(text: str) -> str:
     return " " + re.sub(r"\s+", " ", str(text or "").lower()) + " "
@@ -27,20 +25,47 @@ def _norm(text: str) -> str:
 # ("clinician", "adulthood", etc.) are deliberately excluded — they fire on
 # mentions that aren't the study sample, which is what the LLM is better at.
 _ADULT_POP = (
-    "adults", "older adults", "elderly", "geriatric",
-    "university student", "college student", "undergraduate", "postgraduate",
-    "graduate student", "employee", "employees", "workers", "workplace",
-    "workforce", "veterans",
+    "adults",
+    "older adults",
+    "elderly",
+    "geriatric",
+    "university student",
+    "college student",
+    "undergraduate",
+    "postgraduate",
+    "graduate student",
+    "employee",
+    "employees",
+    "workers",
+    "workplace",
+    "workforce",
+    "veterans",
     # NOTE: "parents"/"caregivers"/"mothers"/"fathers" deliberately NOT here —
     # in child-treatment studies they're usually informants/raters, not the
     # studied sample, so they wrongly forced has_adults=yes. Left to the LLM,
     # which distinguishes a parent SAMPLE (parent_training) from parent raters.
 )
 _MINOR_POP = (
-    "infant", "toddler", "preschool", "kindergarten", "child", "children",
-    "schoolchild", "school-age", "school age", "elementary", "primary school",
-    "high school", "high-school", "adolescent", "teenager", "paediatric",
-    "pediatric", "boys", "girls", "pupils",
+    "infant",
+    "toddler",
+    "preschool",
+    "kindergarten",
+    "child",
+    "children",
+    "schoolchild",
+    "school-age",
+    "school age",
+    "elementary",
+    "primary school",
+    "high school",
+    "high-school",
+    "adolescent",
+    "teenager",
+    "paediatric",
+    "pediatric",
+    "boys",
+    "girls",
+    "pupils",
 )
 
 
@@ -59,8 +84,7 @@ def age_flags(text: str) -> tuple[str | None, str | None]:
 
     ranges: list[tuple[int, int]] = []
     for m in re.finditer(
-        r"(\d{1,2})\s*(?:-|–|—|to)\s*(\d{1,3})\s*"
-        r"(?:years|yrs|year-olds?|years old|years of age)", t
+        r"(\d{1,2})\s*(?:-|–|—|to)\s*(\d{1,3})\s*" r"(?:years|yrs|year-olds?|years old|years of age)", t
     ):
         lo, hi = int(m.group(1)), int(m.group(2))
         if 0 < lo < hi <= 120:
@@ -70,8 +94,13 @@ def age_flags(text: str) -> tuple[str | None, str | None]:
         if 0 < lo < hi <= 120:
             ranges.append((lo, hi))
     older = [int(x) for x in re.findall(r"(\d{1,2})\s*years?\s*(?:and|or)\s*(?:older|above|over)", t)]
-    older += [int(x) for x in re.findall(r"(?:≥|>=|at least|older than|over|aged)\s*(\d{1,2})\s*(?:years|yrs|\+)", t)]
-    under = [int(x) for x in re.findall(r"(?:under|younger than|below|less than)\s*(\d{1,2})\s*(?:years|yrs)?", t)]
+    older += [
+        int(x)
+        for x in re.findall(r"(?:≥|>=|at least|older than|over|aged)\s*(\d{1,2})\s*(?:years|yrs|\+)", t)
+    ]
+    under = [
+        int(x) for x in re.findall(r"(?:under|younger than|below|less than)\s*(\d{1,2})\s*(?:years|yrs)?", t)
+    ]
     means = [float(x) for x in re.findall(r"(?:mean|median|average)\s*age\D{0,10}(\d{1,2}(?:\.\d)?)", t)]
 
     adult_kw = any(k in t for k in _ADULT_POP)
@@ -106,9 +135,14 @@ def age_flags(text: str) -> tuple[str | None, str | None]:
 def study_type_rule(text: str) -> str | None:
     t = _norm(text)
     # Protocols first (an RCT protocol is a protocol, not an empirical result).
-    if re.search(r"\b(study protocol|trial protocol|protocol for (?:a|an|the)|protocol of (?:a|an|the))\b", t):
+    if re.search(
+        r"\b(study protocol|trial protocol|protocol for (?:a|an|the)|protocol of (?:a|an|the))\b", t
+    ):
         return "protocol"
-    if re.search(r"\b(systematic review|scoping review|meta-?analysis|umbrella review|literature review|narrative review|bibliometric)\b", t):
+    if re.search(
+        r"\b(systematic review|scoping review|meta-?analysis|umbrella review|literature review|narrative review|bibliometric)\b",
+        t,
+    ):
         return "review"
     if re.search(r"\b(editorial|commentary|opinion piece|perspective article|viewpoint)\b", t):
         return "commentary"

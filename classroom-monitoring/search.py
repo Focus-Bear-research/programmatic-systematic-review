@@ -17,18 +17,15 @@ from datetime import date
 from pathlib import Path
 
 import pandas as pd
-
 from queries import QUERIES
+
 from steps.semantic_scholar import BulkSearchClient, api_key_from_env
 
 RESULTS_DIR = Path(__file__).parent / "results"
 OUTPUT_CSV = RESULTS_DIR / "semantic_scholar.csv"
 SEARCH_LOG_JSON = RESULTS_DIR / "search_log.json"
 
-FIELDS = (
-    "title,abstract,authors,year,url,venue,externalIds,"
-    "publicationTypes,citationCount,openAccessPdf"
-)
+FIELDS = "title,abstract,authors,year,url,venue,externalIds," "publicationTypes,citationCount,openAccessPdf"
 MAX_RESULTS_PER_QUERY = 5000
 QUERY_SEPARATOR = ";"
 
@@ -84,10 +81,12 @@ def main() -> None:
     rows = [to_row(paper, matched[key]) for key, paper in papers.items()]
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_csv(OUTPUT_CSV, index=False)
-    SEARCH_LOG_JSON.write_text(json.dumps(
-        {"search_date": date.today().isoformat(), "unique_papers": len(rows), "queries": log},
-        indent=2,
-    ))
+    SEARCH_LOG_JSON.write_text(
+        json.dumps(
+            {"search_date": date.today().isoformat(), "unique_papers": len(rows), "queries": log},
+            indent=2,
+        )
+    )
     print(f"Saved {len(rows)} unique papers to {OUTPUT_CSV}")
 
 
