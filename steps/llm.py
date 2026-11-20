@@ -14,7 +14,6 @@ around and a fresh one per call would dominate the cost of a small request.
 from __future__ import annotations
 
 import json
-import os
 import re
 import threading
 import time

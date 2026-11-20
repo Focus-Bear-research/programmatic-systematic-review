@@ -127,7 +127,5 @@ def run() -> pd.DataFrame:
     os.makedirs(review_dir, exist_ok=True)
     df.to_csv(combined_csv, index=False)
     print(f"  saved {len(df)} rows to {combined_csv}")
-    prisma.record_stage(
-        "combine", total=len(df), per_source=per_source, carry_forward=cf_count
-    )
+    prisma.record_stage("combine", total=len(df), per_source=per_source, carry_forward=cf_count)
     return df

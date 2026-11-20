@@ -1,7 +1,6 @@
 # TODO — AuDHD digital-interventions reviews (adult + children)
 
-Two companion systematic reviews. Run all commands from repo root
-`/Users/s3255727/dev/literature-search`. Data lives under
+Two companion systematic reviews. Run all commands from the repo root. Data lives under
 `search-results-from-database/adults/` and `…/children/` (shared corpus: `…/all_papers.csv`).
 
 **AWS (AI steps only):** Bedrock SSO expires ~daily — `aws sso login --profile phd`
@@ -41,8 +40,8 @@ Two companion systematic reviews. Run all commands from repo root
    `adults/adults_fulltext_to_retrieve_2026-08-23.{csv,xlsx}` (controlled + unspecified; peer-reviewed
    only — non-PR already dropped). On RMIT network / via Sebrina, then:
    ```
-   UNPAYWALL_EMAIL=jeremy@focusbear.io poetry run python retrieve-fulltext-parallel.py adults/adults_fulltext_to_retrieve_2026-08-23.csv 8
-   ADULT_SCOPING=1 poetry run python screen-adults-fulltext.py 8
+   poetry run python scripts/fulltext/retrieve_fulltext_parallel.py adults/adults_fulltext_to_retrieve_2026-08-23.csv 8
+   ADULT_SCOPING=1 poetry run python scripts/adults/screen_adults_fulltext.py 8
    ```
 3. [ ] **Re-derive the "323 adults" scoping count** — it's ~40% inflated by parent/provider studies
    (has_adults over-call, now fixed in `configs/adults.json`). Re-classify has_adults or apply the

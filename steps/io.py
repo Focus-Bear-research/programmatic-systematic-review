@@ -70,10 +70,7 @@ def normalise_columns(df: pd.DataFrame, source: str) -> pd.DataFrame:
     """
     out = pd.DataFrame(index=df.index)
     for std, aliases in COLUMN_ALIASES.items():
-        matches = [
-            c for c in df.columns
-            if c is not None and str(c).strip().lower() in aliases
-        ]
+        matches = [c for c in df.columns if c is not None and str(c).strip().lower() in aliases]
         out[std] = _coalesce(df, matches) if matches else ""
     out[COL_SOURCE] = source
     return out[STANDARD_COLUMNS].fillna("")

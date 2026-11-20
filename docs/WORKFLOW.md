@@ -15,18 +15,18 @@ Both now use:
 | Rater B | Claude Sonnet 4.6 | `us.anthropic.claude-sonnet-4-6` | us-east-1 |
 | Adjudicator | **Human** | — | — |
 
-AWS auth: profile `phd` (override with `AWS_PROFILE`). The model IDs above are best-guess
+AWS auth: set `AWS_PROFILE` in `.env`. The model IDs above are best-guess
 us-east-1 inference profiles — **verify them after SSO login** (see step 0).
 
 ## End-to-end run
 
 ```bash
 # 0. Log in + verify the model IDs are correct for us-east-1
-aws sso login --profile phd
-poetry run python scripts/verify_bedrock.py adults     # patches nothing; tells you exact IDs
+aws sso login --profile <your-profile>
+poetry run python scripts/validation/verify_bedrock.py adults     # patches nothing; tells you exact IDs
 
 # 1. (optional) tune prompts for the two models on a small sample first
-poetry run python scripts/prompt_opt.py adults 40
+poetry run python scripts/validation/prompt_opt.py adults 40
 #    → read /tmp/prompt_opt_disagreements.csv
 #    → edit configs/adults.json raters.a.prompt_suffix / raters.b.prompt_suffix
 #    → re-run until agreement is acceptable
@@ -63,8 +63,8 @@ automatically (no UI needed).
 
 ## Notes on the SCP
 
-RMIT's Service Control Policy currently allows direct model invocation and `au.*` (Australia)
+The institution's AWS Service Control Policy currently allows direct model invocation and `au.*` (Australia)
 inference profiles, but blocks `apac.*` and `global.*` cross-region profiles. us-east-1 uses
 `us.*` profiles — if those are also blocked, ask the AWS admin to allow `bedrock:InvokeModel`
 + `bedrock:Converse` on the `us.*` inference-profile ARNs (or run in `au.*` and accept the
-older model line). `scripts/verify_bedrock.py` reports exactly what's reachable.
+older model line). `scripts/validation/verify_bedrock.py` reports exactly what's reachable.

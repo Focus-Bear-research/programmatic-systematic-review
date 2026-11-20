@@ -15,7 +15,6 @@
     "include_when": {},
     "exclude_when": {}
   },
-  "aws_profile": "phd",
   "raters": {
     "a": {
       "provider": "bedrock",

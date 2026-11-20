@@ -47,8 +47,7 @@ OFF_TASK_TERMS = (
 )
 
 RESTRICTION_TERMS = (
-    "(monitor* | block* | restrict* | filter* | surveil* | lock* "
-    '| "self-control" | "self-regulation")'
+    "(monitor* | block* | restrict* | filter* | surveil* | lock* " '| "self-control" | "self-regulation")'
 )
 
 BLOCKING_TERMS = (
@@ -70,8 +69,7 @@ QUERIES: dict[str, str] = {
     "software_category": f"({SOFTWARE_CATEGORY}) + {SCHOOL_CONTEXT}",
     "surveillance": f"({SURVEILLANCE_TERMS}) + {SCHOOL_CONTEXT} + {DEVICE_TERMS}",
     "off_task_restriction": (
-        f"{DEVICE_TERMS} + (classroom* | lecture* | lesson*) + {OFF_TASK_TERMS} "
-        f"+ {RESTRICTION_TERMS}"
+        f"{DEVICE_TERMS} + (classroom* | lecture* | lesson*) + {OFF_TASK_TERMS} " f"+ {RESTRICTION_TERMS}"
     ),
     "blocking": f"({BLOCKING_TERMS}) + {SCHOOL_CONTEXT}",
     "off_task_trials": (

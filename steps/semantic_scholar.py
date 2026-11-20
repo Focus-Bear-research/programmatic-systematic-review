@@ -92,17 +92,17 @@ class BulkSearchClient:
             if response.status_code == HTTP_OK:
                 return response.json()
             if response.status_code in HTTP_UNAUTHORISED and self._api_key:
-                print(f"Semantic Scholar API key rejected (HTTP {response.status_code}); "
-                      "continuing unauthenticated.")
+                print(
+                    f"Semantic Scholar API key rejected (HTTP {response.status_code}); "
+                    "continuing unauthenticated."
+                )
                 self._api_key = None
                 continue
             if response.status_code == HTTP_RATE_LIMITED or response.status_code >= 500:
-                wait = min(2 ** attempt, MAX_BACKOFF_SEC)
+                wait = min(2**attempt, MAX_BACKOFF_SEC)
                 print(f"Semantic Scholar HTTP {response.status_code}; retrying in {wait}s...")
                 time.sleep(wait)
                 continue
             raise SemanticScholarError(f"HTTP {response.status_code}: {response.text[:200]}")
 
-        raise SemanticScholarError(
-            f"Gave up after {MAX_ATTEMPTS_PER_PAGE} attempts for query: {query[:80]}"
-        )
+        raise SemanticScholarError(f"Gave up after {MAX_ATTEMPTS_PER_PAGE} attempts for query: {query[:80]}")

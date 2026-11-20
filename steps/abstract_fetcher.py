@@ -6,7 +6,7 @@ Sources, in priority order:
   3. PubMed E-utilities (esearch by DOI → efetch).
   4. The publisher's landing page HTML (citation_abstract meta tag, og:description, etc.).
 
-The standalone CLI ``fill-missing-abstracts-by-doi.py`` extends this with
+The standalone CLI ``scripts/abstracts/fill_missing_abstracts_by_doi.py`` extends this with
 Unpaywall, OpenAthens via Playwright, and PaperScraper.  Those are kept out of
 the pipeline step to avoid spinning up a browser during automated runs.
 """
@@ -83,15 +83,20 @@ def _extract_abstract_from_soup(soup: BeautifulSoup) -> str | None:
             data = json.loads(raw)
         except (ValueError, TypeError):
             continue
-        for obj in (data if isinstance(data, list) else [data]):
+        for obj in data if isinstance(data, list) else [data]:
             if isinstance(obj, dict):
                 d = obj.get("abstract") or obj.get("description")
                 if isinstance(d, str) and len(d.strip()) > 150:
                     return d.strip()
     # 3. common abstract containers (incl. Springer's c-article markup)
     for sel in (
-        "section.abstract", "div.abstract", "div#abstract", "div.abstractSection",
-        "div.c-article-section__content", "#Abs1-content", "div[class*='abstract' i]",
+        "section.abstract",
+        "div.abstract",
+        "div#abstract",
+        "div.abstractSection",
+        "div.c-article-section__content",
+        "#Abs1-content",
+        "div[class*='abstract' i]",
     ):
         node = soup.select_one(sel)
         if node:
@@ -112,9 +117,7 @@ def fetch_semantic_scholar(doi: str, api_key: str | None) -> str | None:
     for attempt in range(5):
         _throttle_semantic_scholar()
         _s2_last_request_start = time.monotonic()
-        r = SESSION.get(
-            url, params={"fields": "abstract,title"}, headers=headers, timeout=60
-        )
+        r = SESSION.get(url, params={"fields": "abstract,title"}, headers=headers, timeout=60)
         if r.status_code == 200:
             data = r.json()
             abs_text = data.get("abstract")
@@ -122,12 +125,12 @@ def fetch_semantic_scholar(doi: str, api_key: str | None) -> str | None:
                 return abs_text.strip()
             return None
         if r.status_code == 429:
-            time.sleep(min(60, 2 ** attempt))
+            time.sleep(min(60, 2**attempt))
             continue
         if r.status_code in (401, 403, 404):
             return None
         if 500 <= r.status_code < 600:
-            time.sleep(min(60, 2 ** attempt))
+            time.sleep(min(60, 2**attempt))
             continue
         return None
     return None
@@ -137,7 +140,7 @@ def fetch_elsevier(doi: str, api_key: str | None = None, insttoken: str | None =
     """Elsevier Abstract Retrieval API (ScienceDirect publishers, DOI prefix 10.1016 etc.).
 
     Abstract content (the META_ABS view) is entitled by institution: it returns the
-    abstract only when the request comes from a subscribing IP (e.g. on the RMIT
+    abstract only when the request comes from a subscribing IP (e.g. on the institution's
     network/VPN) or carries an institution token (``X-ELS-Insttoken``). Off-campus
     with only an API key you get metadata but a 401 for the abstract view.
     """
@@ -266,7 +269,9 @@ def fetch_springer(doi: str, meta_key: str | None = None, oa_key: str | None = N
             continue
         try:
             r = SESSION.get(
-                base, params={"q": f"doi:{doi}", "api_key": key}, timeout=60,
+                base,
+                params={"q": f"doi:{doi}", "api_key": key},
+                timeout=60,
                 headers={"Accept": "application/json"},
             )
         except requests.RequestException:
@@ -294,7 +299,7 @@ def fetch_europepmc(doi: str | None = None, pmid: str | None = None) -> str | No
     if doi:
         queries.append(f'DOI:"{doi}"')
     if pmid and str(pmid).strip():
-        queries.append(f'EXT_ID:{str(pmid).strip()} AND SRC:MED')
+        queries.append(f"EXT_ID:{str(pmid).strip()} AND SRC:MED")
     for q in queries:
         try:
             r = SESSION.get(
@@ -385,7 +390,9 @@ def fetch_abstract_basic(doi: str, api_key: str | None) -> Tuple[str | None, str
     # Elsevier (ScienceDirect) papers aren't in the open aggregators and their
     # landing page is a JS stub — use the Elsevier Abstract API (needs an
     # institution-entitled IP/insttoken to return the abstract).
-    if os.getenv("ELSEVIER_API_KEY") and doi.startswith(("10.1016", "10.1006", "10.1053", "10.1067", "10.1078")):
+    if os.getenv("ELSEVIER_API_KEY") and doi.startswith(
+        ("10.1016", "10.1006", "10.1053", "10.1067", "10.1078")
+    ):
         tried.append("elsevier")
         ab = fetch_elsevier(doi)
         if ab:
@@ -393,8 +400,7 @@ def fetch_abstract_basic(doi: str, api_key: str | None) -> Tuple[str | None, str
 
     final_url = url if url else "(could not resolve DOI)"
     print(
-        f"    [diag] tried {', '.join(tried)} — none yielded an abstract. "
-        f"DOI redirects to: {final_url}",
+        f"    [diag] tried {', '.join(tried)} — none yielded an abstract. " f"DOI redirects to: {final_url}",
         file=sys.stderr,
     )
     return None, "none"

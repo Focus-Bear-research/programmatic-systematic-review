@@ -31,9 +31,7 @@ from .constants import (
 from .io import is_missing_abstract, norm_title, normalize_doi
 
 
-def _dedup_key(
-    row: pd.Series, doi_col: str, title_col: str
-) -> tuple[str, str] | None:
+def _dedup_key(row: pd.Series, doi_col: str, title_col: str) -> tuple[str, str] | None:
     """Return a normalised key for duplicate detection. DOI first; title fallback."""
     doi = normalize_doi(row[doi_col])
     if doi:

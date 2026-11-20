@@ -1,10 +1,11 @@
 [tool.poetry]
-name = "literature-review-search"
+name = "living-systematic-review"
 version = "0.1.0"
-description = "Automated search and filtering of academic papers using PubMed API."
-authors = ["Your Name <your.email@example.com>"]
+description = "LLM-assisted search, screening and adjudication pipeline for two systematic reviews of digital interventions for co-occurring ADHD and autism."
+authors = ["Jeremy Nagel"]
 license = "MIT"
-package-mode = false
+readme = "README.md"
+packages = [{ include = "steps" }, { include = "scripts" }]
 
 [tool.poetry.dependencies]
 python = "^3.13"
@@ -25,6 +26,24 @@ uvicorn = {extras = ["standard"], version = "^0.52.4"}
 sqlalchemy = "^2.0.52"
 python-multipart = "^0.0.32"
 cryptography = "^50.0.1"
+rapidfuzz = "^3.14.6"
+openai = "^3.57.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.0"
+ruff = "^0.8.0"
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"
+extend-exclude = ["living-review", "scratchpad", "search-results-from-database"]
+
+[tool.ruff.lint]
+# pyflakes + import sorting; E702/E701 flag several statements crammed on one line
+select = ["F", "I", "E701", "E702", "E703"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
